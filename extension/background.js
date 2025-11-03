@@ -1,34 +1,31 @@
 const hostName = 'com.nixuris.procguard';
 let port;
 let webBlocklist = [];
+let isPortConnected = false;
 
 function connect() {
   try {
-    
     port = chrome.runtime.connectNative(hostName);
+    isPortConnected = true;
 
     port.onMessage.addListener((msg) => {
-      
       if (msg.type === 'web_blocklist') {
         webBlocklist = msg.payload || [];
-        
       }
     });
 
     port.onDisconnect.addListener(() => {
+      isPortConnected = false;
       if (chrome.runtime.lastError) {
-        
       }
-      
       setTimeout(connect, 5000);
     });
 
     // Request the blocklist on connection.
     port.postMessage({ type: 'get_web_blocklist' });
   } catch (err) {
-    
+    isPortConnected = false;
     // Still try to reconnect
-    
     setTimeout(connect, 5000);
   }
 }
@@ -51,16 +48,18 @@ chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => 
 // Listen for messages from the popup.
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'add_to_web_blocklist') {
-    if (port) {
+    if (port && isPortConnected) {
       port.postMessage(request);
       // Also add it to the local blocklist immediately for a faster response.
       if (!webBlocklist.includes(request.payload)) {
         webBlocklist.push(request.payload);
       }
       sendResponse({ status: 'ok' });
+    } else {
+      sendResponse({ status: 'error', message: 'Port not connected' });
     }
   } else if (request.type === 'log_web_metadata') {
-    if (port) {
+    if (port && isPortConnected) {
       port.postMessage(request);
     }
   }
@@ -112,8 +111,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
   // Only log when the tab is fully loaded and has a valid URL.
   if (changeInfo.status === 'complete' && tab.url && (tab.url.startsWith('http') || tab.url.startsWith('https'))) {
-    if (port) {
-      
+    if (port && isPortConnected) {
       port.postMessage({ type: 'log_url', payload: tab.url });
 
       // Inject a script to get the title and favicon

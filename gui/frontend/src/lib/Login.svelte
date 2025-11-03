@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
-  import { navigate } from './router';
 
   let title = 'Đăng nhập';
   let hasPassword = false;

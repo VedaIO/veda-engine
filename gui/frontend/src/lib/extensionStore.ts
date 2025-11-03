@@ -37,7 +37,7 @@ export function checkExtension(): void {
             }
           }
         );
-      } catch (e) {
+      } catch {
         isExtensionInstalled.set(false);
       }
       obs.disconnect();
