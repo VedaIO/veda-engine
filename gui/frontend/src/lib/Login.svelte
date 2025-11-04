@@ -1,13 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
+  import { navigate } from './router';
+  import { isAuthenticated } from './authStore';
 
-  let title = 'Đăng nhập';
   let hasPassword = false;
   let errorMessage = writable('');
   let password = '';
   let newPassword = '';
   let confirmPassword = '';
+
+  // This is a derived reactive statement. It automatically updates the `title`
+  // whenever the `hasPassword` variable changes. This is a more declarative and
+  // idiomatic Svelte approach than manually setting the title in onMount.
+  $: title = hasPassword ? 'Nhập mật khẩu' : 'Tạo mật khẩu';
 
   onMount(async () => {
     const response = await fetch('/api/has-password');
@@ -16,12 +22,6 @@
       hasPassword = data.hasPassword;
     } else {
       errorMessage.set('Lỗi kết nối đến máy chủ.');
-    }
-
-    if (hasPassword) {
-      title = 'Nhập mật khẩu';
-    } else {
-      title = 'Tạo mật khẩu';
     }
   });
 
@@ -36,7 +36,12 @@
     if (response.ok) {
       const { success } = await response.json();
       if (success) {
-        window.location.href = '/';
+        // On successful login, we update the shared `isAuthenticated` store.
+        // This will cause other components (like App.svelte) to reactively update.
+        isAuthenticated.set(true);
+        // We then use the client-side router to navigate to the home page
+        // without a full page reload, providing a smoother user experience.
+        navigate('/');
       } else {
         errorMessage.set('Sai mật khẩu');
       }
@@ -65,7 +70,9 @@
     });
 
     if (response.ok) {
-      window.location.href = '/';
+      // Just like in handleLogin, we update the shared store and navigate.
+      isAuthenticated.set(true);
+      navigate('/');
     } else {
       errorMessage.set('Lỗi đặt mật khẩu');
     }

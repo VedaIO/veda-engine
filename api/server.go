@@ -208,7 +208,7 @@ func (srv *Server) registerRoutes(r *http.ServeMux) {
 	// Web Blocklist API routes
 	r.HandleFunc("/api/web-blocklist", srv.handleGetWebBlocklist)
 	r.HandleFunc("/api/web-blocklist/add", srv.handleAddWebBlocklist)
-	r.HandleFunc("//api/web-blocklist/remove", srv.handleRemoveWebBlocklist)
+	r.HandleFunc("/api/web-blocklist/remove", srv.handleRemoveWebBlocklist)
 	r.HandleFunc("/api/web-blocklist/clear", srv.handleClearWebBlocklist)
 	r.HandleFunc("/api/web-blocklist/save", srv.handleSaveWebBlocklist)
 	r.HandleFunc("/api/web-blocklist/load", srv.handleLoadWebBlocklist)

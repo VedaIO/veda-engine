@@ -18,6 +18,7 @@
   let untilTime = '';
   let blockStatus = writable('');
   let searchResults = writable<SearchResultItem[]>([]);
+  let selectedApps: string[] = [];
 
   async function search(range?: {
     since: string;
@@ -45,7 +46,7 @@
     if (until) {
       url += '&until=' + encodeURIComponent(until);
     }
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: 'no-cache' });
     const data = await res.json();
     if (data && data.length > 0) {
       const items: SearchResultItem[] = await Promise.all(
@@ -84,9 +85,6 @@
   }
 
   async function block(): Promise<void> {
-    const selectedApps = Array.from(
-      document.querySelectorAll('input[name="search-result-app"]:checked')
-    ).map((cb) => (cb as HTMLInputElement).value);
     if (selectedApps.length === 0) {
       alert('Vui lòng chọn một ứng dụng từ kết quả tìm kiếm để chặn.');
       return;
@@ -95,15 +93,22 @@
     // Remove duplicates
     const uniqueApps = [...new Set(selectedApps)];
 
-    await fetch('/api/block', {
+    const response = await fetch('/api/block', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ names: uniqueApps }),
     });
+
+    if (!response.ok) {
+      alert(`Error blocking apps: ${response.statusText}`);
+      return;
+    }
+
     blockStatus.set('Đã chặn: ' + uniqueApps.join(', '));
     setTimeout(() => {
       blockStatus.set('');
     }, 3000);
+    selectedApps = []; // Clear selection
   }
 
   onMount(() => {
@@ -223,8 +228,17 @@
 
     <h5 class="mt-4">Kết quả tìm kiếm</h5>
     <div id="results" class="list-group">
-      {#each $searchResults as item (item.processName)}
-        <SearchResultItem {item} />
+      {#each $searchResults as item, i (item.processName + i)}
+        <label class="list-group-item d-flex align-items-center">
+          <input
+            class="form-check-input me-2"
+            type="checkbox"
+            name="search-result-app"
+            value={item.processName}
+            bind:group={selectedApps}
+          />
+          <SearchResultItem {item} />
+        </label>
       {:else}
         <div class="list-group-item">Không tìm thấy kết quả.</div>
       {/each}

@@ -6,14 +6,13 @@
   import Settings from './lib/Settings.svelte';
   import Login from './lib/Login.svelte';
   import { onMount } from 'svelte';
+  import { isAuthenticated } from './lib/authStore';
   import {
     isUninstallModalOpen,
     uninstallPassword,
     uninstallError,
     handleUninstallSubmit,
   } from './lib/modalStore';
-
-  let isAuthenticated = false;
 
   const routes: { [key: string]: any } = {
     '/': Welcome,
@@ -29,15 +28,15 @@
     checkExtension();
     const res = await fetch('/api/is-authenticated');
     const data = await res.json();
-    isAuthenticated = data.authenticated;
+    isAuthenticated.set(data.authenticated);
 
-    if (!isAuthenticated && window.location.pathname !== '/login') {
+    if (!$isAuthenticated && window.location.pathname !== '/login') {
       navigate('/login');
     }
   });
 </script>
 
-{#if isAuthenticated}
+{#if $isAuthenticated}
   <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
       <a

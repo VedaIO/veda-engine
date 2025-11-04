@@ -12,8 +12,9 @@ import (
 
 const appName = "ProcGuard"
 
-// EnsureAutostart sets up the application to run automatically on user logon.
-// It achieves this by creating a registry entry in the `Run` key and copying the executable to a persistent location.
+// EnsureAutostart sets up the application to run automatically when the user logs on.
+// This is achieved by creating a registry entry in the standard `Software\\Microsoft\\Windows\\CurrentVersion\\Run` key.
+// The executable is copied to a persistent AppData location to prevent issues if the original is moved or deleted.
 func EnsureAutostart() (string, error) {
 	// The path to the executable in the persistent location.
 	destPath, err := copyExecutableToAppData()
@@ -33,18 +34,21 @@ func EnsureAutostart() (string, error) {
 	}()
 
 	// Check if the autostart entry already exists and is correct.
+	// The entry should point to the persistent executable path with the --background flag.
 	currentPath, _, err := key.GetStringValue(appName)
-	if err == nil && currentPath == destPath {
+	if err == nil && currentPath == destPath+" --background" {
 		return destPath, nil // Entry already exists and is correct.
 	}
 
-	// Set the registry value to point to the persistent executable path with the background flag.
-	// The --background flag ensures the application starts in a silent, service-like mode.
+	// Set the registry value to point to the executable, including the --background flag.
+	// This flag is critical for launching the app in a non-interactive service mode on startup,
+	// ensuring all background functionality is active without opening a GUI.
 	if err := key.SetStringValue(appName, destPath+" --background"); err != nil {
 		return destPath, fmt.Errorf("failed to set startup registry key: %w", err)
 	}
 
 	// Update the config file to reflect the change in autostart status.
+	// This ensures the application's internal state matches the system's autostart configuration.
 	cfg, err := data.LoadConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to load config to update autostart status:", err)

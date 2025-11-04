@@ -10,8 +10,14 @@
   let blocklistItems = writable<BlockedApp[]>([]);
   let unblockStatus = writable('');
 
+  // This array will hold the names of the currently selected checkboxes.
+  // Svelte's `bind:group` directive will automatically keep this array in sync with the UI.
+  let selectedApps: string[] = [];
+
+  // Fetches the app blocklist from the backend.
+  // It uses the `cache: 'no-cache'` option to prevent the browser from returning a stale list.
   async function loadBlocklist(): Promise<void> {
-    const res = await fetch('/api/blocklist');
+    const res = await fetch('/api/blocklist', { cache: 'no-cache' });
     const data = await res.json();
     if (data && data.length > 0) {
       blocklistItems.set(data);
@@ -20,24 +26,45 @@
     }
   }
 
+  // Unblocks all applications that are currently selected in the UI.
   async function unblockSelected(): Promise<void> {
-    const selectedApps = Array.from(
-      document.querySelectorAll('input[name="blocked-app"]:checked')
-    ).map((cb) => (cb as HTMLInputElement).value);
     if (selectedApps.length === 0) {
       alert('Vui lòng chọn các ứng dụng để bỏ chặn.');
       return;
     }
-    await fetch('/api/unblock', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ names: selectedApps }),
+
+    // Create an array of fetch promises, one for each selected app.
+    // This allows us to send the removal requests in parallel and handle failures individually.
+    const removalPromises = selectedApps.map(async (name) => {
+      // The backend /api/unblock endpoint is designed to accept an array of names.
+      // Here, we send an array with a single name for each request to get per-item success/failure feedback.
+      const response = await fetch('/api/unblock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ names: [name] }),
+      });
+      // It's important to check if the request was successful. If not, alert the user.
+      if (!response.ok) {
+        alert(`Error unblocking ${name}: ${response.statusText}`);
+        throw new Error(`Failed to unblock ${name}`);
+      }
     });
+
+    try {
+      // Wait for all the removal requests to complete.
+      await Promise.all(removalPromises);
+    } catch {
+      // If any of the promises fail, the error will be caught here.
+      // The individual errors are already alerted, so we just stop execution.
+      return;
+    }
+
     unblockStatus.set('Đã bỏ chặn: ' + selectedApps.join(', '));
     setTimeout(() => {
       unblockStatus.set('');
     }, 3000);
     loadBlocklist(); // Refresh the list
+    selectedApps = []; // Clear the selection
   }
 
   async function clearBlocklist(): Promise<void> {
@@ -136,6 +163,7 @@
               type="checkbox"
               name="blocked-app"
               value={app.name}
+              bind:group={selectedApps}
             />
             <span class="fw-bold me-2">{app.name}</span>
           </label>

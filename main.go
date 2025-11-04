@@ -30,9 +30,13 @@ const (
 	chromeExtensionID = "ilaocldmkhlifnikhinkmiepekpbefoh"
 )
 
-// main is the entry point of the application. It determines the execution mode based on command-line arguments.
+// main is the entry point of the application. It uses command-line flags and arguments to determine
+// which mode the application should run in. This allows the same executable to serve multiple purposes:
+// as a background service, a native messaging host, and an interactive GUI application.
 func main() {
-	// Define command-line flags.
+	// The --background flag is used by the autostart mechanism (e.g., Windows Registry) to launch the
+	// application in a non-interactive mode on system startup. This ensures that the core blocking
+	// services are running without requiring user interaction or launching a visible window.
 	background := flag.Bool("background", false, "Run the application in background (service) mode without a GUI.")
 	flag.Parse()
 
@@ -42,16 +46,19 @@ func main() {
 	}
 	data.NewLogger(db)
 
-	// Determine the application's execution mode.
-	// 1. Background (service) mode: Started by autostart, runs silently.
+	// The application's execution mode is determined by the following priority:
+	// 1. Background Mode: Triggered by the --background flag for autostart.
 	if *background {
 		startBackgroundService(db)
-		// Keep the background service running indefinitely.
+		// select {} blocks the main goroutine, keeping the background service alive indefinitely.
 		select {}
 	} else if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "chrome-extension://") {
+		// 2. Native Messaging Host Mode: Triggered by the browser when the extension needs to communicate
+		// with the backend. The browser launches the executable with the extension's origin as an argument.
 		runNativeMessagingHost(db)
 		return
 	} else {
+		// 3. GUI Application Mode: The default mode for interactive use. It launches the web-based GUI.
 		startGUIApplication(db)
 	}
 }
