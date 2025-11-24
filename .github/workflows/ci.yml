@@ -8,21 +8,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Install Nix
         uses: cachix/install-nix-action@v27
-      - name: Install frontend dependencies
-        run: cd gui && npm install
-      - name: Run frontend linter
-        run: cd gui && npm run lint
-      - name: Run frontend formatter check
-        run: cd gui && npm run format-check
-      - name: Build frontend
-        run: make build-frontend
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+            experimental-features = nix-command flakes
+
+      - name: Run Frontend Checks
+        run: nix develop --command bash -c 'cd gui && npm install && npm run lint && npm run format-check'
+
+      - name: Build Frontend
+        run: nix develop --command make build-frontend
+
       - name: Run golangci-lint
-        env:
-          GOOS: windows
-        run: |
-          echo "Running golangci-lint..."
-          golangci-lint run ./...
+        run: nix develop --command golangci-lint run ./...
+
       - name: Build
-        run: make build
+        run: nix develop --command make build
