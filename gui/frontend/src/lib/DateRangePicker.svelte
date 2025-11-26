@@ -9,6 +9,7 @@
   import { createEventDispatcher, onMount, onDestroy } from 'svelte';
   import flatpickr from 'flatpickr';
   import 'flatpickr/dist/flatpickr.css';
+  import { Vietnamese } from 'flatpickr/dist/l10n/vn.js';
   import type { Instance } from 'flatpickr/dist/types/instance';
   import type { Options } from 'flatpickr/dist/types/options';
 
@@ -26,6 +27,7 @@
     enableTime: true,
     time_24hr: true,
     dateFormat: 'Y-m-d H:i',
+    locale: Vietnamese,
   };
 
   onMount(() => {
