@@ -82,8 +82,10 @@ func openAndConfigureDB() (*sql.DB, error) {
 		return nil, fmt.Errorf("could not get user cache dir: %w", err)
 	}
 	dbPath := filepath.Join(cacheDir, "procguard", "procguard.db")
+	log.Printf("Database path: %s", dbPath)
 
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {
+		log.Printf("Error creating database directory: %v", err)
 		return nil, fmt.Errorf("could not create database directory: %w", err)
 	}
 
@@ -91,6 +93,7 @@ func openAndConfigureDB() (*sql.DB, error) {
 	// which is beneficial for this application where the daemon is constantly writing and the API server is reading.
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_journal_mode=WAL&_busy_timeout=5000", dbPath))
 	if err != nil {
+		log.Printf("Error opening database: %v", err)
 		return nil, fmt.Errorf("could not open database: %w", err)
 	}
 	return db, nil

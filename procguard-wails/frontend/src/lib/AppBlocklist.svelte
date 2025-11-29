@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import { showToast } from './toastStore';
-  import { GetAppBlocklist, GetAppDetails, UnblockApps, ClearAppBlocklist, SaveAppBlocklist, LoadAppBlocklist } from '../../../wailsjs/go/main/App';
 
   interface BlockedApp {
     name: string;
@@ -16,7 +15,8 @@
 
   async function loadBlocklist(): Promise<void> {
     try {
-      const data = await GetAppBlocklist();
+      const data: BlockedApp[] = await window.go.main.App.GetAppBlocklist();
+
       if (data && data.length > 0) {
         blocklistItems.set(data);
 
@@ -24,10 +24,12 @@
           data.map(async (app) => {
             if (app.exe_path) {
               try {
-                const appDetails = await GetAppDetails(app.exe_path);
+                const appDetails = await window.go.main.App.GetAppDetails(
+                  app.exe_path
+                );
                 return { ...app, ...appDetails };
               } catch (error) {
-                console.error('Error getting app details:', error);
+                console.error('Error fetching app details:', error);
               }
             }
             return app;
@@ -50,32 +52,36 @@
     }
 
     try {
-      await UnblockApps(selectedApps);
+      await window.go.main.App.UnblockApps(selectedApps);
       showToast(`Đã bỏ chặn: ${selectedApps.join(', ')}`, 'success');
+      loadBlocklist();
+      selectedApps = [];
     } catch (error) {
-      showToast(`Lỗi bỏ chặn: ${error}`, 'error');
+      console.error('Error unblocking apps:', error);
+      showToast('Lỗi khi bỏ chặn ứng dụng.', 'error');
     }
-
-    loadBlocklist();
-    selectedApps = [];
   }
 
   async function clearBlocklist(): Promise<void> {
     if (confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách chặn không?')) {
       try {
-        await ClearAppBlocklist();
+        await window.go.main.App.ClearAppBlocklist();
         showToast('Đã xóa toàn bộ danh sách chặn.', 'success');
         loadBlocklist();
       } catch (error) {
-        showToast(`Lỗi xóa danh sách chặn: ${error}`, 'error');
+        console.error('Error clearing blocklist:', error);
+        showToast('Lỗi khi xóa danh sách chặn.', 'error');
       }
     }
   }
 
   async function saveBlocklist(): Promise<void> {
     try {
-      const blob = await SaveAppBlocklist();
-      const url = window.URL.createObjectURL(new Blob([blob]));
+      const data = await window.go.main.App.SaveAppBlocklist();
+      const blob = new Blob([JSON.stringify(data)], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
@@ -84,7 +90,8 @@
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      showToast(`Lỗi lưu danh sách chặn: ${error}`, 'error');
+      console.error('Error saving blocklist:', error);
+      showToast('Lỗi khi lưu danh sách chặn.', 'error');
     }
   }
 
@@ -93,17 +100,16 @@
     if (!file) {
       return;
     }
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        await LoadAppBlocklist(new Uint8Array(reader.result as ArrayBuffer));
-        showToast('Đã tải lên và hợp nhất danh sách chặn.', 'success');
-        loadBlocklist();
-      } catch (error) {
-        showToast(`Lỗi tải lên danh sách chặn: ${error}`, 'error');
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      await window.go.main.App.LoadAppBlocklist(data);
+      showToast('Đã tải lên và hợp nhất danh sách chặn.', 'success');
+      loadBlocklist();
+    } catch (error) {
+      console.error('Error loading blocklist file:', error);
+      showToast('Lỗi khi tải danh sách chặn.', 'error');
+    }
   }
 
   onMount(() => {

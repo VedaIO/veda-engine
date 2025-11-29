@@ -1,9 +1,8 @@
 # Wails
 wailsjs/
-build/bin/
 build.log
 dist/
-/procguard-wails
+procguard-wails/build/bin
 frontend/dist/
 
 # IDE

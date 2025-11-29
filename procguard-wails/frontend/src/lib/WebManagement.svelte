@@ -12,7 +12,7 @@
 </script>
 
 <div id="web-management-view">
-  {#if isExtensionInstalled === false}
+  {#if $isExtensionInstalled === false}
     <!-- "Not Installed" View -->
     <div id="web-extension-not-installed-view" class="text-center">
       <div class="card mt-3">
@@ -42,7 +42,7 @@
         </div>
       </div>
     </div>
-  {:else if isExtensionInstalled === true}
+  {:else if $isExtensionInstalled === true}
     <!-- Tab Navigation -->
     <ul class="nav nav-tabs" id="webManTabs" role="tablist">
       <li class="nav-item" role="presentation">

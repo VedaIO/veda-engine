@@ -19,7 +19,6 @@
 
   function formatDateTime(date: Date | null): string {
     if (!date) return '';
-    // Wails works well with standard string formats for time
     return date.toISOString();
   }
 
@@ -30,9 +29,9 @@
   ): Promise<void> {
     try {
       const data = await window.go.main.App.GetWebLogs(
-        query,
         sinceStr,
-        untilStr
+        untilStr,
+        query
       );
       if (data && data.length > 0) {
         const items: WebLogItem[] = await Promise.all(
@@ -50,13 +49,12 @@
             let iconUrl = '';
             if (domain) {
               try {
-                const webDetails = await window.go.main.App.GetWebDetails(
-                  domain
-                );
+                const webDetails =
+                  await window.go.main.App.GetWebDetails(domain);
                 title = webDetails.title;
                 iconUrl = webDetails.iconUrl;
               } catch (error) {
-                console.error('Error getting web details:', error);
+                console.error('Error fetching web details:', error);
               }
             }
 
@@ -76,7 +74,7 @@
         webLogItems.set([]);
       }
     } catch (error) {
-      showToast(`Lỗi tải lịch sử web: ${error}`, 'error');
+      console.error('Error loading web logs:', error);
       webLogItems.set([]);
     }
   }
@@ -104,6 +102,7 @@
       for (const domain of uniqueDomains) {
         await window.go.main.App.AddWebBlocklist(domain);
       }
+
       showToast(
         'Các trang web đã chọn đã được thêm vào danh sách chặn.',
         'success'
@@ -114,7 +113,8 @@
         ) as NodeListOf<HTMLInputElement>
       ).forEach((cb) => (cb.checked = false));
     } catch (error) {
-      showToast(`Lỗi chặn trang web: ${error}`, 'error');
+      console.error('Error blocking websites:', error);
+      showToast('Lỗi khi chặn trang web.', 'error');
     }
   }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Router, { wrap } from 'svelte-spa-router/wrap';
+  import { currentPath, navigate } from './lib/router';
   import Welcome from './lib/Welcome.svelte';
   import AppManagement from './lib/AppManagement.svelte';
   import WebManagement from './lib/WebManagement.svelte';
@@ -15,21 +15,15 @@
     handleUninstallSubmit,
   } from './lib/modalStore';
 
-  const routes = {
-    // Exact path
-    '/': wrap({ asyncComponent: () => import('./lib/Welcome.svelte') }),
-    '/apps': wrap({ asyncComponent: () => import('./lib/AppManagement.svelte') }),
-    '/web': wrap({ asyncComponent: () => import('./lib/WebManagement.svelte') }),
-    '/settings': wrap({ asyncComponent: () => import('./lib/Settings.svelte') }),
-    '/login': wrap({ asyncComponent: () => import('./lib/Login.svelte') }),
-    // Catch-all for 404
-    '*': wrap({ asyncComponent: () => import('./lib/Welcome.svelte') }), // Default to Welcome
+  const routes: { [key: string]: any } = {
+    '/': Welcome,
+    '/apps': AppManagement,
+    '/web': WebManagement,
+    '/settings': Settings,
+    '/login': Login,
   };
 
   import { checkExtension } from './lib/extensionStore';
-
-  let uninstallPasswordValue = '';
-  $: uninstallPassword.set(uninstallPasswordValue);
 
   async function handleStop() {
     if (confirm('Bạn có chắc chắn muốn dừng ProcGuard không?')) {
@@ -43,29 +37,24 @@
     }
   }
 
-  async function handleLogout() {
-    await window.go.main.App.Logout();
-    window.location.hash = '#/login'; // Use hash navigation
-  }
-
   onMount(async () => {
     checkExtension();
     const authenticated = await window.go.main.App.GetIsAuthenticated();
     isAuthenticated.set(authenticated);
 
-    if (!authenticated && window.location.hash !== '#/login') {
-      window.location.hash = '#/login'; // Use hash navigation
+    if (!$isAuthenticated && window.location.pathname !== '/login') {
+      navigate('/login');
     }
   });
 </script>
 
-{#if isAuthenticated}
+{#if $isAuthenticated}
   <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
       <a
         class="navbar-brand"
-        href="#/"
-        >ProcGuard</a
+        href="/"
+        on:click|preventDefault={() => navigate('/')}>ProcGuard</a
       >
       <button
         class="navbar-toggler"
@@ -83,16 +72,15 @@
           <li class="nav-item">
             <a
               class="nav-link"
-              href="#/"
-              >Trang chủ</a
+              href="/"
+              on:click|preventDefault={() => navigate('/')}>Trang chủ</a
             >
           </li>
           <li class="nav-item">
             <a
               class="nav-link"
-              href="#/settings"
-              on:click|preventDefault={() => (window.location.hash = '#/settings')}
-              >Cài đặt</a
+              href="/settings"
+              on:click|preventDefault={() => navigate('/settings')}>Cài đặt</a
             >
           </li>
         </ul>
@@ -103,22 +91,24 @@
             >
           </li>
           <li class="nav-item">
-            <button class="nav-link btn" on:click={handleLogout}>Đăng xuất</button>
+            <a class="nav-link" href="/logout">Đăng xuất</a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
+
+  <main class="container mt-4">
+    <svelte:component this={routes[$currentPath]} />
+  </main>
+
+  <Toast />
+{:else}
+  <svelte:component this={routes['/login']} />
 {/if}
 
-<main class="container mt-4">
-  <Router {routes} />
-</main>
-
-<Toast />
-
 <!-- Uninstall Modal -->
-{#if isUninstallModalOpen}
+{#if $isUninstallModalOpen}
   <div class="modal-backdrop fade show"></div>
   <div
     class="modal fade show"
@@ -155,12 +145,12 @@
                 id="uninstall-password"
                 placeholder="Mật khẩu"
                 required
-                bind:value={uninstallPasswordValue}
+                bind:value={$uninstallPassword}
               />
             </div>
-            {#if uninstallError}
+            {#if $uninstallError}
               <p class="text-danger" style="display: block">
-                {uninstallError}
+                {$uninstallError}
               </p>
             {/if}
             <button type="submit" class="btn btn-danger w-100">

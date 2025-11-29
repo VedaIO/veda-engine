@@ -4,7 +4,6 @@
   import SearchResultItem from './SearchResultItem.svelte';
   import { showToast } from './toastStore';
   import DateRangePicker from './DateRangePicker.svelte';
-  import { Search, GetAppDetails, BlockApps } from '../../../wailsjs/go/main/App';
 
   interface SearchResultItem {
     processName: string;
@@ -30,7 +29,7 @@
     untilStr: string
   ): Promise<void> {
     try {
-      const data = await Search(q, sinceStr, untilStr);
+      const data = await window.go.main.App.Search(sinceStr, untilStr, q);
       if (data && data.length > 0) {
         const items: SearchResultItem[] = await Promise.all(
           data.map(async (l: string[]) => {
@@ -41,15 +40,18 @@
 
             if (exePath) {
               try {
-                const appDetails = await GetAppDetails(exePath);
+                const appDetails =
+                  await window.go.main.App.GetAppDetails(exePath);
                 commercialName = appDetails.commercialName;
                 icon = appDetails.icon;
               } catch (error) {
-                console.error('Error getting app details:', error);
+                console.error('Error fetching app details:', error);
               }
             }
 
-            const otherInfo = l.filter((_, i) => i !== 1 && i !== 4).join(' | ');
+            const otherInfo = l
+              .filter((_, i) => i !== 1 && i !== 4)
+              .join(' | ');
 
             return {
               processName,
@@ -90,14 +92,15 @@
     const uniqueApps = [...new Set(selectedApps)];
 
     try {
-      await BlockApps(uniqueApps);
+      await window.go.main.App.BlockApps(uniqueApps);
       showToast(
         `Các ứng dụng đã chọn đã được thêm vào danh sách chặn`,
         'success'
       );
       selectedApps = [];
     } catch (error) {
-      showToast(`Lỗi chặn ứng dụng: ${error}`, 'error');
+      console.error('Error blocking apps:', error);
+      showToast('Lỗi khi chặn ứng dụng.', 'error');
     }
   }
 

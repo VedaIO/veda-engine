@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigate } from './router';
 </script>
 
 <div id="welcome-view">
@@ -22,7 +23,7 @@
         <button
           class="btn btn-outline-light"
           type="button"
-          on:click={() => (window.location.hash = '#/apps')}
+          on:click={() => navigate('/apps')}
         >
           Đi tới Quản lý Ứng dụng
         </button>
@@ -38,7 +39,7 @@
         <button
           class="btn btn-outline-light"
           type="button"
-          on:click={() => (window.location.hash = '#/web')}
+          on:click={() => navigate('/web')}
         >
           Đi tới Quản lý Web
         </button>

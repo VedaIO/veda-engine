@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable } from 'svelte/store';
 
 export const isExtensionInstalled = writable<boolean | null>(null);
 
@@ -11,24 +11,27 @@ export function checkExtension(): void {
   }
 
   const observer = new MutationObserver((mutations, obs) => {
-    const idDiv = document.getElementById("procguard-extension-id");
+    const idDiv = document.getElementById('procguard-extension-id');
     if (idDiv && idDiv.textContent) {
       const extensionId = idDiv.textContent;
 
       try {
         chrome.runtime.sendMessage(
           extensionId,
-          { message: "is_installed" },
+          { message: 'is_installed' },
           (response) => {
             if (chrome.runtime.lastError) {
               isExtensionInstalled.set(false);
             } else {
-              if (response && response.status === "installed") {
+              if (response && response.status === 'installed') {
                 isExtensionInstalled.set(true);
-                window.go.main.App.RegisterExtension(extensionId);
+                // Register the extension with the backend
+                window.go.main.App.RegisterExtension(extensionId).catch((err) =>
+                  console.error('Failed to register extension:', err)
+                );
               }
             }
-          },
+          }
         );
       } catch {
         isExtensionInstalled.set(false);

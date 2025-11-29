@@ -1,23 +1,27 @@
-import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
-import sveltePreprocess from "svelte-preprocess";
-import path from "path";
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     svelte({
-      preprocess: sveltePreprocess(),
+      compilerOptions: {
+        compatibility: {
+          componentApi: 4,
+        },
+      },
     }),
   ],
   resolve: {
     alias: {
-      "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
+      '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
     },
   },
   build: {
-    outDir: "dist",
+    outDir: 'dist',
     emptyOutDir: true,
-    base: "",
+    base: '',
+    minify: false,
   },
 });

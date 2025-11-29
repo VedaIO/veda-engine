@@ -21,7 +21,7 @@
         webBlocklistItems.set([]);
       }
     } catch (error) {
-      showToast(`Lỗi tải danh sách chặn web: ${error}`, 'error');
+      console.error('Error loading web blocklist:', error);
       webBlocklistItems.set([]);
     }
   }
@@ -33,7 +33,8 @@
         showToast(`Đã bỏ chặn ${domain}`, 'success');
         loadWebBlocklist();
       } catch (error) {
-        showToast(`Lỗi bỏ chặn ${domain}: ${error}`, 'error');
+        console.error('Error removing web blocklist:', error);
+        showToast(`Lỗi bỏ chặn ${domain}`, 'error');
       }
     }
   }
@@ -44,14 +45,20 @@
       return;
     }
 
-    try {
-      // Wails allows calling the Go method for each selected domain.
-      for (const domain of selectedWebsites) {
+    const removalPromises = selectedWebsites.map(async (domain) => {
+      try {
         await window.go.main.App.RemoveWebBlocklist(domain);
+      } catch (error) {
+        console.error(`Error unblocking ${domain}:`, error);
+        showToast(`Lỗi bỏ chặn ${domain}`, 'error');
+        throw new Error(`Failed to unblock ${domain}`);
       }
+    });
+
+    try {
+      await Promise.all(removalPromises);
       showToast(`Đã bỏ chặn: ${selectedWebsites.join(', ')}`, 'success');
-    } catch (error) {
-      showToast(`Lỗi bỏ chặn trang web: ${error}`, 'error');
+    } catch {
       return;
     }
 
@@ -68,16 +75,16 @@
         showToast('Đã xóa toàn bộ danh sách chặn web.', 'success');
         loadWebBlocklist();
       } catch (error) {
-        showToast(`Lỗi xóa danh sách chặn: ${error}`, 'error');
+        console.error('Error clearing web blocklist:', error);
+        showToast('Lỗi khi xóa danh sách chặn.', 'error');
       }
     }
   }
 
   async function saveWebBlocklist(): Promise<void> {
     try {
-      // The Go method returns a byte array which can be used to create a Blob
-      const blobBytes = await window.go.main.App.SaveWebBlocklist();
-      const blob = new Blob([new Uint8Array(blobBytes)], {
+      const data = await window.go.main.App.SaveWebBlocklist();
+      const blob = new Blob([JSON.stringify(data)], {
         type: 'application/json',
       });
       const url = window.URL.createObjectURL(blob);
@@ -89,7 +96,8 @@
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      showToast(`Lỗi lưu danh sách chặn: ${error}`, 'error');
+      console.error('Error saving web blocklist:', error);
+      showToast('Lỗi khi lưu danh sách chặn.', 'error');
     }
   }
 
@@ -98,20 +106,16 @@
     if (!file) {
       return;
     }
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        // We pass the file content as a Uint8Array to the Go method
-        await window.go.main.App.LoadWebBlocklist(
-          new Uint8Array(reader.result as ArrayBuffer)
-        );
-        showToast('Đã tải lên và hợp nhất danh sách chặn web.', 'success');
-        loadWebBlocklist();
-      } catch (error) {
-        showToast(`Lỗi tải lên danh sách chặn: ${error}`, 'error');
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      await window.go.main.App.LoadWebBlocklist(data);
+      showToast('Đã tải lên và hợp nhất danh sách chặn web.', 'success');
+      loadWebBlocklist();
+    } catch (error) {
+      console.error('Error loading web blocklist file:', error);
+      showToast('Lỗi khi tải danh sách chặn.', 'error');
+    }
   }
 
   onMount(() => {

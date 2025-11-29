@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { GetAppLeaderboard } from '../../../wailsjs/go/main/App';
 
   interface AppLeaderboardItem {
     rank: number;
@@ -13,7 +12,7 @@
 
   async function loadAppLeaderboard(since = '', until = ''): Promise<void> {
     try {
-      const data = await GetAppLeaderboard(since, until);
+      const data = await window.go.main.App.GetAppLeaderboard(since, until);
       if (data && data.length > 0) {
         leaderboardData = data;
       } else {

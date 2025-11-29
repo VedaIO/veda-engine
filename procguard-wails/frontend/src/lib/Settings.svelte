@@ -8,16 +8,11 @@
 
   async function loadAutostartStatus(): Promise<void> {
     try {
-      // Wails call to the bound Go method
-      const enabled = await window.go.main.App.GetAutostartStatus();
-      isAutostartEnabled = enabled;
+      isAutostartEnabled = await window.go.main.App.GetAutostartStatus();
       autostartToggleBtnDisabled = false;
-    } catch (e) {
-      // If the Go method returns an error, it will be caught here
-      showToast(
-        `Không hỗ trợ tự động khởi động trên HĐH này: ${e}`,
-        'info'
-      );
+    } catch (error) {
+      console.error('Error loading autostart status:', error);
+      showToast('Không hỗ trợ tự động khởi động trên HĐH này', 'info');
       autostartToggleBtnDisabled = true;
     }
   }
@@ -27,16 +22,20 @@
     try {
       if (isAutostartEnabled) {
         await window.go.main.App.DisableAutostart();
-        showToast('Đã tắt tự động khởi động.', 'success');
       } else {
         await window.go.main.App.EnableAutostart();
-        showToast('Đã bật tự động khởi động.', 'success');
       }
-      // Refresh status after action
-      await loadAutostartStatus();
-    } catch (e) {
       showToast(
-        `Thao tác thất bại: ${e instanceof Error ? e.message : e}`,
+        isAutostartEnabled
+          ? 'Đã tắt tự động khởi động.'
+          : 'Đã bật tự động khởi động.',
+        'success'
+      );
+      loadAutostartStatus(); // Refresh status after action
+    } catch (e) {
+      console.error('Error toggling autostart:', e);
+      showToast(
+        `Đã xảy ra lỗi: ${e instanceof Error ? e.message : 'Unknown error'}`,
         'error'
       );
     } finally {
