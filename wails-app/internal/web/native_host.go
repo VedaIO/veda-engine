@@ -19,23 +19,17 @@ const (
 	HostName = "com.infraflakes.procguard"
 )
 
-// InstallNativeHost sets up the native messaging host for Chrome by creating a registry key
-// that points to a manifest file. This allows the browser extension to communicate with the application.
+// InstallNativeHost sets up the native messaging host for Chrome, Edge, and Firefox by creating registry keys
+// that point to a manifest file. This allows browser extensions to communicate with the application.
 func InstallNativeHost(exePath, extensionId string) error {
 	log := data.GetLogger()
-	keyPath := `SOFTWARE\Google\Chrome\NativeMessagingHosts\` + HostName
 
-	// Create the registry key that Chrome will use to find the native messaging host.
-	k, _, err := registry.CreateKey(registry.CURRENT_USER, keyPath, registry.SET_VALUE)
-	if err != nil {
-		log.Printf("Failed to create registry key: %v", err)
-		return fmt.Errorf("failed to create registry key: %w", err)
+	// Register for multiple browsers
+	browsers := []string{
+		`SOFTWARE\Google\Chrome\NativeMessagingHosts\` + HostName,
+		`SOFTWARE\Microsoft\Edge\NativeMessagingHosts\` + HostName,
+		`SOFTWARE\Mozilla\NativeMessagingHosts\` + HostName,
 	}
-	defer func() {
-		if err := k.Close(); err != nil {
-			log.Printf("Failed to close registry key: %v", err)
-		}
-	}()
 
 	// The manifest file must be stored in a location that the user has access to.
 	// The user's cache directory is a good choice.
@@ -58,17 +52,32 @@ func InstallNativeHost(exePath, extensionId string) error {
 		return fmt.Errorf("failed to create manifest file: %w", err)
 	}
 
-	// Set the default value of the registry key to the path of the manifest file.
-	if err := k.SetStringValue("", manifestPath); err != nil {
-		log.Printf("Failed to set registry key value: %v", err)
-		return fmt.Errorf("failed to set registry key value: %w", err)
+	// Register in all browser registry locations
+	for _, keyPath := range browsers {
+		// Create the registry key that the browser will use to find the native messaging host.
+		k, _, err := registry.CreateKey(registry.CURRENT_USER, keyPath, registry.SET_VALUE)
+		if err != nil {
+			log.Printf("Failed to create registry key %s: %v", keyPath, err)
+			continue // Don't fail if one browser isn't installed
+		}
+
+		// Set the default value of the registry key to the path of the manifest file.
+		if err := k.SetStringValue("", manifestPath); err != nil {
+			log.Printf("Failed to set registry key value for %s: %v", keyPath, err)
+			k.Close()
+			continue
+		}
+
+		if err := k.Close(); err != nil {
+			log.Printf("Failed to close registry key: %v", err)
+		}
 	}
 
 	return nil
 }
 
 // CreateManifest creates the native messaging host manifest file.
-// This file tells Chrome how to communicate with the native application.
+// This file tells browsers how to communicate with the native application.
 func CreateManifest(manifestPath, exePath, extensionId string) error {
 	manifest := map[string]interface{}{
 		"name":        HostName,
@@ -76,8 +85,11 @@ func CreateManifest(manifestPath, exePath, extensionId string) error {
 		"path":        exePath,
 		"type":        "stdio",
 		"allowed_origins": []string{
+			// Chrome/Edge format
 			"chrome-extension://" + extensionId + "/",
 			"chrome-extension://gpaafgcbiejjpfdgmjglehboafdicdjb/", // Dev Extension ID
+			// Firefox format (add Firefox extension ID here when available)
+			// "extension://YOUR_FIREFOX_ID/",
 		},
 	}
 
