@@ -11,8 +11,8 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
-    "lint": "eslint frontend/src/**/*.ts frontend/src/**/*.svelte --config frontend/eslint.config.js",
-    "lint:fix": "eslint . --ext .js,.svelte --config frontend/eslint.config.js --fix"
+    "lint": "eslint src/**/*.ts src/**/*.svelte --config eslint.config.js",
+    "lint:fix": "eslint . --ext .js,.svelte --config eslint.config.js --fix"
   },
   "keywords": [],
   "author": "",
