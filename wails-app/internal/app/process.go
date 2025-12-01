@@ -10,11 +10,13 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 	"unsafe"
 	"wails-app/internal/data"
 
+	"github.com/bi-zone/go-fileversion"
 	"github.com/shirou/gopsutil/v3/process"
 	"go.mozilla.org/pkcs7"
 )
@@ -191,6 +193,14 @@ func getPublisherName(filePath string) (string, error) {
 	return "", fmt.Errorf("no organization name found in any certificate")
 }
 
+func getProductName(exePath string) (string, error) {
+	info, err := fileversion.New(exePath)
+	if err != nil {
+		return "", err
+	}
+	return info.ProductName(), nil
+}
+
 func isMicrosoftProcess(p *process.Process) bool {
 	exePath, err := p.Exe()
 	if err != nil {
@@ -265,9 +275,13 @@ func StartBlocklistEnforcer(appLogger data.Logger) {
 	}()
 }
 
-var ignoredProcesses = []string{
-	"textinputhost.exe",
-}
+// Process filtering using heuristics instead of hardcoded lists
+// This is more maintainable and future-proof
+
+// loggedApps tracks which applications have already been logged (deduplication)
+// Key is lowercase process name (e.g., "chrome.exe")
+var loggedApps = make(map[string]bool)
+var loggedAppsMu sync.Mutex
 
 func shouldLogProcess(p *process.Process) bool {
 	name, err := p.Name()
@@ -275,37 +289,97 @@ func shouldLogProcess(p *process.Process) bool {
 		return false
 	}
 
-	for _, ignoredName := range ignoredProcesses {
-		if strings.EqualFold(name, ignoredName) {
+	nameLower := strings.ToLower(name)
+
+	// Rule 0: Never log ProcGuard itself
+	if nameLower == "procguard.exe" {
+		return false
+	}
+
+	// Rule 1: Deduplication - Only log first instance of each application
+	// This prevents Chrome (5 processes) from creating 5 database entries
+	loggedAppsMu.Lock()
+	if loggedApps[nameLower] {
+		loggedAppsMu.Unlock()
+		return false // Already logged this app
+	}
+	loggedAppsMu.Unlock()
+
+	// Rule 2: Skip conhost.exe (spawned by cmd, not directly launched)
+	if nameLower == "conhost.exe" {
+		return false
+	}
+
+	// Rule 3: Log cmd.exe and powershell.exe ONLY if launched by explorer.exe
+	// This filters out background scripts spawned by other apps (like Edge)
+	if nameLower == "cmd.exe" || nameLower == "powershell.exe" || nameLower == "pwsh.exe" {
+		parent, err := p.Parent()
+		if err == nil {
+			parentName, err := parent.Name()
+			if err == nil && strings.EqualFold(parentName, "explorer.exe") {
+				// Mark as logged and return true
+				loggedAppsMu.Lock()
+				loggedApps[nameLower] = true
+				loggedAppsMu.Unlock()
+				return true
+			}
+		}
+		return false
+	}
+
+	// Rule 4: Must have visible window (user interaction indicator)
+	// This filters out ALL background processes automatically
+	if !hasVisibleWindow(uint32(p.Pid)) {
+		return false
+	}
+
+	// Rule 5: Skip if System integrity level (system services)
+	il, err := GetProcessIntegrityLevel(uint32(p.Pid))
+	if err == nil && il >= SECURITY_MANDATORY_SYSTEM_RID {
+		return false
+	}
+
+	// Rule 6: Skip if in System32/SysWOW64 (Windows system processes)
+	exePath, err := p.Exe()
+	if err == nil {
+		exePathLower := strings.ToLower(exePath)
+		if strings.Contains(exePathLower, "\\windows\\system32\\") ||
+			strings.Contains(exePathLower, "\\windows\\syswow64\\") {
+			return false
+		}
+
+		// Rule 6.5: Skip processes with "Microsoft® Windows® Operating System" product name
+		// This catches system components that might live outside system32
+		productName, err := getProductName(exePath)
+		if err == nil && strings.Contains(productName, "Microsoft® Windows® Operating System") {
 			return false
 		}
 	}
 
-	if name == "ProcGuardSvc.exe" {
-		return false
+	// Rule 7: Prefer processes launched by explorer.exe (Start menu, desktop)
+	// This is a strong indicator the user launched it
+	parent, err := p.Parent()
+	if err == nil {
+		parentName, err := parent.Name()
+		if err == nil && strings.ToLower(parentName) == "explorer.exe" {
+			// Mark as logged and return true
+			loggedAppsMu.Lock()
+			loggedApps[nameLower] = true
+			loggedAppsMu.Unlock()
+			return true
+		}
 	}
 
+	// Rule 8: Skip Microsoft-signed processes without user interaction
+	// This catches remaining system components
 	if isMicrosoftProcess(p) {
 		return false
 	}
 
-	if hasVisibleWindow(uint32(p.Pid)) {
-		return true
-	}
-
-	il, err := GetProcessIntegrityLevel(uint32(p.Pid))
-	if err == nil && il >= SECURITY_MANDATORY_HIGH_RID {
-		return false
-	}
-
-	parent, err := p.Parent()
-	if err != nil {
-		return true
-	}
-
-	if isMicrosoftProcess(parent) {
-		return false
-	}
-
-	return false
+	// Default: Log it (likely a user application)
+	// Mark as logged
+	loggedAppsMu.Lock()
+	loggedApps[nameLower] = true
+	loggedAppsMu.Unlock()
+	return true
 }
