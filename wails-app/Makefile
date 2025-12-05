@@ -11,22 +11,22 @@ all: build
 
 build:
 	@echo "Building ProcGuard for windows..."
-	cd frontend && npm run build
+	cd frontend && bun run build
 	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu" GOOS=windows GOARCH=amd64 go build -tags desktop,production -ldflags="-w -s -X main.version=$(VERSION) -H windowsgui" -o build/bin/ProcGuard.exe
 
 build-debug:
 	@echo "Building ProcGuard for windows (debug)..."
-	cd frontend && npm run build
+	cd frontend && bun run build
 	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu" GOOS=windows GOARCH=amd64 go build -tags desktop,production -ldflags="-X main.version=$(VERSION)" -o build/bin/ProcGuard.exe
 
 fmt:
 	@echo "Formatting code..."
 	go fmt ./...
-	cd frontend && npm run format
+	cd frontend && bun run format
 
 lint:
 	GOOS=windows golangci-lint run
-	cd frontend && npm run lint
+	cd frontend && bun run lint
 
 clean:
 	@echo "Cleaning..."

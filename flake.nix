@@ -15,7 +15,7 @@
         golangci-lint
         wails
         gnumake
-        nodejs_24
+        bun
         zig
         clang
       ];
