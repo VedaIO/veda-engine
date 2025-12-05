@@ -37,25 +37,27 @@ jobs:
       # Single efficient step
       - name: Build, Format & Lint
         run: |
-          # All commands run in the same Nix environment
-          cd wails-app
-          
-          # Install Wails (cached in go/bin)
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-          
-          # Run everything in parallel where possible
-          make build &
-          BUILD_PID=$!
-          
-          make fmt &
-          FMT_PID=$!
-          
-          wait $BUILD_PID
-          wait $FMT_PID
-          
-          make lint
-          
-          cd frontend && bun run format-check
+          nix develop --command bash -c '
+            set -e
+            cd wails-app
+
+            # Install Wails (cached in go/bin)
+            go install github.com/wailsapp/wails/v2/cmd/wails@latest
+            
+            # Run everything in parallel where possible
+            make build &
+            BUILD_PID=$!
+            
+            make fmt &
+            FMT_PID=$!
+            
+            wait $BUILD_PID
+            wait $FMT_PID
+            
+            make lint
+            
+            cd frontend && bun run format-check
+          '
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
