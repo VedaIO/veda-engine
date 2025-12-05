@@ -13,4 +13,7 @@ func StartDaemon(appLogger data.Logger, db *sql.DB) {
 
 	// Start the blocklist enforcer to kill blocked processes.
 	app.StartBlocklistEnforcer(appLogger)
+
+	// Start the screen time monitor to track foreground window usage.
+	app.StartScreenTimeMonitor(appLogger, db)
 }

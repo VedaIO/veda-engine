@@ -146,6 +146,19 @@ func createSchema(db *sql.DB) error {
 		icon_url TEXT,
 		timestamp INTEGER NOT NULL
 	);
+
+	-- screen_time stores foreground window usage time.
+	CREATE TABLE IF NOT EXISTS screen_time (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		executable_path TEXT,
+		window_title TEXT,
+		timestamp INTEGER NOT NULL,
+		duration_seconds INTEGER DEFAULT 1
+	);
+
+	-- Indexes for screen_time queries.
+	CREATE INDEX IF NOT EXISTS idx_screen_time_timestamp ON screen_time (timestamp);
+	CREATE INDEX IF NOT EXISTS idx_screen_time_exe ON screen_time (executable_path);
 	`
 	_, err := db.Exec(schema)
 	return err
