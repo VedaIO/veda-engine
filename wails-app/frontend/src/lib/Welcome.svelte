@@ -102,7 +102,7 @@
           <i class="bi bi-clock-history me-2"></i>Thời gian sử dụng ứng dụng hôm
           nay
         </h5>
-        <span class="badge bg-primary fs-6"
+        <span class="badge fs-6 text-black" style="background-color: #f76f53;"
           >{formatDuration(totalScreenTime)}</span
         >
       </div>

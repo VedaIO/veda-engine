@@ -5,21 +5,17 @@
 # Fallback to 'dev' if not in a git repository.
 VERSION ?= $(shell git describe --tags --always --dirty --first-parent 2>/dev/null || echo "dev")
 
-.PHONY: all build dev fmt clean
+.PHONY: all build build-debug fmt clean
 
 all: build
 # DO NOT ADD -s FLAG OR ELSE ANTI VIRUS WILL TRIGGER
 build:
 	@echo "Building ProcGuard for windows..."
-	cd frontend && bun install && bun run build
-	wails generate module
-	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu -Wl,--subsystem,windows" GOOS=windows GOARCH=amd64 go build -tags desktop,production -ldflags="-w -X main.version=$(VERSION) -H windowsgui" -o build/bin/ProcGuard.exe
+	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu -Wl,--subsystem,windows" wails build -platform windows/amd64 -ldflags="-w -X main.version=$(VERSION)"
 
 build-debug:
 	@echo "Building ProcGuard for windows (debug)..."
-	cd frontend && bun install && bun run build
-	wails generate module
-	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu" GOOS=windows GOARCH=amd64 go build -tags desktop,production -ldflags="-X main.version=$(VERSION)" -o build/bin/ProcGuard.exe
+	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu" wails build -platform windows/amd64 -ldflags="-X main.version=$(VERSION)"
 
 fmt:
 	@echo "Formatting code..."
