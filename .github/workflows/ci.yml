@@ -36,14 +36,7 @@ jobs:
         run: |
           nix develop --command bash -c '
             set -e
-
-            echo "Installing Go Modules..."
-            go mod tidy
-
             cd wails-app
-            
-            echo "Running formatters..."
-            make fmt
             
             echo "Running linter..."
             make lint
