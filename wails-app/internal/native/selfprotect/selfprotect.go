@@ -1,11 +1,5 @@
 package selfprotect
 
-/*
-#cgo windows CFLAGS: -I.
-#cgo windows LDFLAGS: -ladvapi32
-
-#include "selfprotect.h"
-*/
 import "C"
 import "fmt"
 
