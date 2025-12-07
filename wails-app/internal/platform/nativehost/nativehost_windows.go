@@ -85,11 +85,11 @@ func CreateManifest(manifestPath, exePath, extensionId string) error {
 		"path":        exePath,
 		"type":        "stdio",
 		"allowed_origins": []string{
-			// Always include both extension IDs to support both dev and store versions
 			"chrome-extension://hkanepohpflociaodcicmmfbdaohpceo/", // Chrome Web Store
 			"chrome-extension://gpaafgcbiejjpfdgmjglehboafdicdjb/", // Dev Extension ID
-			// Firefox format (add Firefox extension ID here when available)
-			// "extension://YOUR_FIREFOX_ID/",
+		},
+		"allowed_extensions": []string{
+			"procguard@infraflakes.com",
 		},
 	}
 
