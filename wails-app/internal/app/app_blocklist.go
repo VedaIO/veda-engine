@@ -1,4 +1,4 @@
-package data
+package app
 
 import (
 	"database/sql"
@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"wails-app/internal/data"
 	"wails-app/internal/platform/blocklistlock"
 )
 
@@ -43,7 +44,7 @@ func GetBlockedAppsWithDetails(db *sql.DB) ([]BlockedAppDetail, error) {
 				exePath = ""
 			} else {
 				// For other errors, log them but continue building the list.
-				GetLogger().Printf("Error querying exe_path for %s: %v", name, err)
+				data.GetLogger().Printf("Error querying exe_path for %s: %v", name, err)
 				exePath = ""
 			}
 		}

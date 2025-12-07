@@ -6,12 +6,12 @@ import (
 	"slices"
 	"strings"
 	"time"
-	"wails-app/internal/data"
+	"wails-app/internal/app"
 )
 
 // BlockApps adds one or more applications to the blocklist.
 func (s *Server) BlockApps(names []string) error {
-	list, err := data.LoadAppBlocklist()
+	list, err := app.LoadAppBlocklist()
 	if err != nil {
 		return err
 	}
@@ -23,12 +23,12 @@ func (s *Server) BlockApps(names []string) error {
 		}
 	}
 
-	return data.SaveAppBlocklist(list)
+	return app.SaveAppBlocklist(list)
 }
 
 // UnblockApps removes one or more applications from the blocklist.
 func (s *Server) UnblockApps(names []string) error {
-	list, err := data.LoadAppBlocklist()
+	list, err := app.LoadAppBlocklist()
 	if err != nil {
 		return err
 	}
@@ -40,22 +40,22 @@ func (s *Server) UnblockApps(names []string) error {
 		})
 	}
 
-	return data.SaveAppBlocklist(list)
+	return app.SaveAppBlocklist(list)
 }
 
 // GetAppBlocklist returns the list of blocked applications with their details.
-func (s *Server) GetAppBlocklist() ([]data.BlockedAppDetail, error) {
-	return data.GetBlockedAppsWithDetails(s.db)
+func (s *Server) GetAppBlocklist() ([]app.BlockedAppDetail, error) {
+	return app.GetBlockedAppsWithDetails(s.db)
 }
 
 // ClearAppBlocklist removes all applications from the blocklist.
 func (s *Server) ClearAppBlocklist() error {
-	return data.ClearAppBlocklist()
+	return app.ClearAppBlocklist()
 }
 
 // SaveAppBlocklist saves the current application blocklist to a file for export.
 func (s *Server) SaveAppBlocklist() ([]byte, error) {
-	list, err := data.LoadAppBlocklist()
+	list, err := app.LoadAppBlocklist()
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (s *Server) LoadAppBlocklist(content []byte) error {
 		newEntries = savedList.Blocked
 	}
 
-	existingList, err := data.LoadAppBlocklist()
+	existingList, err := app.LoadAppBlocklist()
 	if err != nil {
 		return err
 	}
@@ -95,5 +95,5 @@ func (s *Server) LoadAppBlocklist(content []byte) error {
 		}
 	}
 
-	return data.SaveAppBlocklist(existingList)
+	return app.SaveAppBlocklist(existingList)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"wails-app/internal/app"
 	"wails-app/internal/auth"
 	"wails-app/internal/data"
 	"wails-app/internal/platform/autostart"
@@ -91,7 +92,7 @@ func killOtherProcGuardProcesses(logger data.Logger) {
 
 // unblockAll restores the original names of any files that were blocked by the application.
 func unblockAll() error {
-	list, err := data.LoadAppBlocklist()
+	list, err := app.LoadAppBlocklist()
 	if err != nil {
 		return fmt.Errorf("could not load blocklist: %w", err)
 	}

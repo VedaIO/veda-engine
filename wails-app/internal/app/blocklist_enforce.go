@@ -18,7 +18,7 @@ func StartBlocklistEnforcer(appLogger data.Logger) {
 		killTick := time.NewTicker(blocklistEnforceInterval)
 		defer killTick.Stop()
 		for range killTick.C {
-			list, err := data.LoadAppBlocklist()
+			list, err := LoadAppBlocklist()
 			if err != nil {
 				appLogger.Printf("failed to fetch blocklist: %v", err)
 				continue

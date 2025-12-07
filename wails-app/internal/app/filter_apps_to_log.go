@@ -8,7 +8,7 @@ import (
 	"github.com/shirou/gopsutil/v3/process"
 )
 
-// ShouldTrackApp determines if an application should be tracked for screen time.
+// ShouldTrackApp determines if an application should be tracked
 // This is a shared filter used by both process logging and screen time tracking.
 // It filters out system processes, Windows components, and other non-user apps.
 func ShouldTrackApp(exePath string, proc *process.Process) bool {

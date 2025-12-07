@@ -163,7 +163,7 @@ func Run() {
 
 		case "get_web_blocklist":
 			// Send blocklist
-			blocklist, err := data.LoadWebBlocklist()
+			blocklist, err := LoadWebBlocklist()
 			if err != nil {
 				log.Printf("Error loading blocklist: %v", err)
 				blocklist = []string{} // Send empty list on error
@@ -178,7 +178,7 @@ func Run() {
 				log.Printf("Error unmarshalling add_to_web_blocklist payload: %v", err)
 				continue
 			}
-			if _, err := data.AddWebsiteToBlocklist(domain); err != nil {
+			if _, err := AddWebsiteToBlocklist(domain); err != nil {
 				log.Printf("Error adding to web blocklist: %v", err)
 			}
 		default:
@@ -197,7 +197,7 @@ func pollWebBlocklist() {
 
 	for range ticker.C {
 		// Load blocklist directly from data package
-		list, err := data.LoadWebBlocklist()
+		list, err := LoadWebBlocklist()
 		if err != nil {
 			log.Printf("Failed to get web blocklist: %v", err)
 			continue

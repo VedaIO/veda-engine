@@ -6,33 +6,34 @@ import (
 	"slices"
 	"time"
 	"wails-app/internal/data"
+	"wails-app/internal/web"
 )
 
 // GetWebBlocklist returns the list of blocked websites with their details.
-func (s *Server) GetWebBlocklist() ([]data.BlockedWebsiteDetail, error) {
-	return data.GetBlockedWebsitesWithDetails(s.db)
+func (s *Server) GetWebBlocklist() ([]web.BlockedWebsiteDetail, error) {
+	return web.GetBlockedWebsitesWithDetails(s.db)
 }
 
 // AddWebBlocklist adds a domain to the web blocklist.
 func (s *Server) AddWebBlocklist(domain string) error {
-	_, err := data.AddWebsiteToBlocklist(domain)
+	_, err := web.AddWebsiteToBlocklist(domain)
 	return err
 }
 
 // RemoveWebBlocklist removes a domain from the web blocklist.
 func (s *Server) RemoveWebBlocklist(domain string) error {
-	_, err := data.RemoveWebsiteFromBlocklist(domain)
+	_, err := web.RemoveWebsiteFromBlocklist(domain)
 	return err
 }
 
 // ClearWebBlocklist removes all domains from the web blocklist.
 func (s *Server) ClearWebBlocklist() error {
-	return data.ClearWebBlocklist()
+	return web.ClearWebBlocklist()
 }
 
 // SaveWebBlocklist saves the current web blocklist to a file for export.
 func (s *Server) SaveWebBlocklist() ([]byte, error) {
-	list, err := data.LoadWebBlocklist()
+	list, err := web.LoadWebBlocklist()
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +62,7 @@ func (s *Server) LoadWebBlocklist(content []byte) error {
 		newEntries = savedList.Blocked
 	}
 
-	existingList, err := data.LoadWebBlocklist()
+	existingList, err := web.LoadWebBlocklist()
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func (s *Server) LoadWebBlocklist(content []byte) error {
 		}
 	}
 
-	return data.SaveWebBlocklist(existingList)
+	return web.SaveWebBlocklist(existingList)
 }
 
 // GetWebLogs retrieves web logs from the database within a given time range.

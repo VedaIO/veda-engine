@@ -138,7 +138,7 @@ func Remove() error {
 	// Also check legacy path just in case
 	legacyManifestPath := filepath.Join(cacheDir, "procguard", "procguard.json")
 	if err := os.Remove(legacyManifestPath); err != nil && !os.IsNotExist(err) {
-		// Log but continue
+		data.GetLogger().Printf("Failed to remove legacy manifest: %v", err)
 	}
 
 	if err := os.Remove(manifestPath); err != nil && !os.IsNotExist(err) {
