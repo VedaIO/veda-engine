@@ -1,73 +1,73 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
-  import { navigate } from './router';
-  import { isAuthenticated } from './authStore';
+import { onMount } from 'svelte';
+import { writable } from 'svelte/store';
+import { navigate } from './router';
+import { isAuthenticated } from './authStore';
 
-  let hasPassword = false;
-  let errorMessage = writable('');
-  let password = '';
-  let newPassword = '';
-  let confirmPassword = '';
+let hasPassword = false;
+let errorMessage = writable('');
+let password = '';
+let newPassword = '';
+let confirmPassword = '';
 
-  // This is a derived reactive statement. It automatically updates the `title`
-  // whenever the `hasPassword` variable changes. This is a more declarative and
-  // idiomatic Svelte approach than manually setting the title in onMount.
-  $: title = hasPassword ? 'Nhập mật khẩu' : 'Tạo mật khẩu';
+// This is a derived reactive statement. It automatically updates the `title`
+// whenever the `hasPassword` variable changes. This is a more declarative and
+// idiomatic Svelte approach than manually setting the title in onMount.
+$: title = hasPassword ? 'Nhập mật khẩu' : 'Tạo mật khẩu';
 
-  onMount(async () => {
-    try {
-      hasPassword = await window.go.main.App.HasPassword();
-    } catch (error) {
-      console.error('Error checking password:', error);
-      errorMessage.set('Lỗi kết nối đến máy chủ.');
-    }
-  });
-
-  async function handleLogin(event: Event) {
-    event.preventDefault();
-
-    try {
-      const success = await window.go.main.App.Login(password);
-      if (success) {
-        // On successful login, we update the shared `isAuthenticated` store.
-        // This will cause other components (like App.svelte) to reactively update.
-        isAuthenticated.set(true);
-        // We then use the client-side router to navigate to the home page
-        // without a full page reload, providing a smoother user experience.
-        navigate('/');
-      } else {
-        errorMessage.set('Sai mật khẩu');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      errorMessage.set('Lỗi đăng nhập');
-    }
+onMount(async () => {
+  try {
+    hasPassword = await window.go.main.App.HasPassword();
+  } catch (error) {
+    console.error('Error checking password:', error);
+    errorMessage.set('Lỗi kết nối đến máy chủ.');
   }
+});
 
-  async function handleSetPassword(event: Event) {
-    event.preventDefault();
+async function handleLogin(event: Event) {
+  event.preventDefault();
 
-    if (newPassword.trim() === '') {
-      errorMessage.set('Mật khẩu không được để trống');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      errorMessage.set('Mật khẩu không khớp');
-      return;
-    }
-
-    try {
-      await window.go.main.App.SetPassword(newPassword);
-      // Just like in handleLogin, we update the shared store and navigate.
+  try {
+    const success = await window.go.main.App.Login(password);
+    if (success) {
+      // On successful login, we update the shared `isAuthenticated` store.
+      // This will cause other components (like App.svelte) to reactively update.
       isAuthenticated.set(true);
+      // We then use the client-side router to navigate to the home page
+      // without a full page reload, providing a smoother user experience.
       navigate('/');
-    } catch (error) {
-      console.error('Set password error:', error);
-      errorMessage.set('Lỗi đặt mật khẩu');
+    } else {
+      errorMessage.set('Sai mật khẩu');
     }
+  } catch (error) {
+    console.error('Login error:', error);
+    errorMessage.set('Lỗi đăng nhập');
   }
+}
+
+async function handleSetPassword(event: Event) {
+  event.preventDefault();
+
+  if (newPassword.trim() === '') {
+    errorMessage.set('Mật khẩu không được để trống');
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    errorMessage.set('Mật khẩu không khớp');
+    return;
+  }
+
+  try {
+    await window.go.main.App.SetPassword(newPassword);
+    // Just like in handleLogin, we update the shared store and navigate.
+    isAuthenticated.set(true);
+    navigate('/');
+  } catch (error) {
+    console.error('Set password error:', error);
+    errorMessage.set('Lỗi đặt mật khẩu');
+  }
+}
 </script>
 
 <main class="login-container">

@@ -1,59 +1,59 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { openConfirmModal } from './modalStore';
-  import { showToast } from './toastStore';
+import { onMount } from 'svelte';
+import { openConfirmModal } from './modalStore';
+import { showToast } from './toastStore';
 
-  let isAutostartEnabled = false;
-  let autostartToggleBtnDisabled = false;
+let isAutostartEnabled = false;
+let autostartToggleBtnDisabled = false;
 
-  async function loadAutostartStatus(): Promise<void> {
-    try {
-      isAutostartEnabled = await window.go.main.App.GetAutostartStatus();
-      autostartToggleBtnDisabled = false;
-    } catch (error) {
-      console.error('Error loading autostart status:', error);
-      showToast('Không hỗ trợ tự động khởi động trên HĐH này', 'info');
-      autostartToggleBtnDisabled = true;
-    }
-  }
-
-  async function toggleAutostart(): Promise<void> {
+async function loadAutostartStatus(): Promise<void> {
+  try {
+    isAutostartEnabled = await window.go.main.App.GetAutostartStatus();
+    autostartToggleBtnDisabled = false;
+  } catch (error) {
+    console.error('Error loading autostart status:', error);
+    showToast('Không hỗ trợ tự động khởi động trên HĐH này', 'info');
     autostartToggleBtnDisabled = true;
-    try {
-      if (isAutostartEnabled) {
-        await window.go.main.App.DisableAutostart();
-      } else {
-        await window.go.main.App.EnableAutostart();
-      }
-      showToast(
-        isAutostartEnabled
-          ? 'Đã tắt tự động khởi động.'
-          : 'Đã bật tự động khởi động.',
-        'success'
-      );
-      loadAutostartStatus(); // Refresh status after action
-    } catch (e) {
-      console.error('Error toggling autostart:', e);
-      showToast(
-        `Đã xảy ra lỗi: ${e instanceof Error ? e.message : 'Unknown error'}`,
-        'error'
-      );
-    } finally {
-      autostartToggleBtnDisabled = false;
+  }
+}
+
+async function toggleAutostart(): Promise<void> {
+  autostartToggleBtnDisabled = true;
+  try {
+    if (isAutostartEnabled) {
+      await window.go.main.App.DisableAutostart();
+    } else {
+      await window.go.main.App.EnableAutostart();
     }
+    showToast(
+      isAutostartEnabled
+        ? 'Đã tắt tự động khởi động.'
+        : 'Đã bật tự động khởi động.',
+      'success',
+    );
+    loadAutostartStatus(); // Refresh status after action
+  } catch (e) {
+    console.error('Error toggling autostart:', e);
+    showToast(
+      `Đã xảy ra lỗi: ${e instanceof Error ? e.message : 'Unknown error'}`,
+      'error',
+    );
+  } finally {
+    autostartToggleBtnDisabled = false;
   }
+}
 
-  async function clearAppHistory(): Promise<void> {
-    openConfirmModal('Xóa lịch sử ứng dụng', 'clearAppHistory');
-  }
+async function clearAppHistory(): Promise<void> {
+  openConfirmModal('Xóa lịch sử ứng dụng', 'clearAppHistory');
+}
 
-  async function clearWebHistory(): Promise<void> {
-    openConfirmModal('Xóa lịch sử Web', 'clearWebHistory');
-  }
+async function clearWebHistory(): Promise<void> {
+  openConfirmModal('Xóa lịch sử Web', 'clearWebHistory');
+}
 
-  onMount(() => {
-    loadAutostartStatus();
-  });
+onMount(() => {
+  loadAutostartStatus();
+});
 </script>
 
 <div id="settings-view">

@@ -1,120 +1,120 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
-  import { showToast } from './toastStore';
+import { onMount } from 'svelte';
+import { writable } from 'svelte/store';
+import { showToast } from './toastStore';
 
-  interface BlockedApp {
-    name: string;
-    exe_path: string;
-    commercialName?: string; // Make optional as it will be loaded async
-    icon?: string; // Make optional as it will be loaded async
-  }
+interface BlockedApp {
+  name: string;
+  exe_path: string;
+  commercialName?: string; // Make optional as it will be loaded async
+  icon?: string; // Make optional as it will be loaded async
+}
 
-  let blocklistItems = writable<BlockedApp[]>([]);
-  let selectedApps: string[] = [];
+let blocklistItems = writable<BlockedApp[]>([]);
+let selectedApps: string[] = [];
 
-  async function loadBlocklist(): Promise<void> {
-    try {
-      const data: BlockedApp[] = await window.go.main.App.GetAppBlocklist();
+async function loadBlocklist(): Promise<void> {
+  try {
+    const data: BlockedApp[] = await window.go.main.App.GetAppBlocklist();
 
-      if (data && data.length > 0) {
-        blocklistItems.set(data);
+    if (data && data.length > 0) {
+      blocklistItems.set(data);
 
-        const detailedItems = await Promise.all(
-          data.map(async (app) => {
-            if (app.exe_path) {
-              try {
-                const appDetails = await window.go.main.App.GetAppDetails(
-                  app.exe_path
-                );
-                return { ...app, ...appDetails };
-              } catch (error) {
-                console.error('Error fetching app details:', error);
-              }
+      const detailedItems = await Promise.all(
+        data.map(async (app) => {
+          if (app.exe_path) {
+            try {
+              const appDetails = await window.go.main.App.GetAppDetails(
+                app.exe_path,
+              );
+              return { ...app, ...appDetails };
+            } catch (error) {
+              console.error('Error fetching app details:', error);
             }
-            return app;
-          })
-        );
-        blocklistItems.set(detailedItems);
-      } else {
-        blocklistItems.set([]);
-      }
-    } catch (error) {
-      console.error('Error loading blocklist:', error);
+          }
+          return app;
+        }),
+      );
+      blocklistItems.set(detailedItems);
+    } else {
       blocklistItems.set([]);
     }
+  } catch (error) {
+    console.error('Error loading blocklist:', error);
+    blocklistItems.set([]);
+  }
+}
+
+async function unblockSelected(): Promise<void> {
+  if (selectedApps.length === 0) {
+    showToast('Vui lòng chọn các ứng dụng để bỏ chặn.', 'info');
+    return;
   }
 
-  async function unblockSelected(): Promise<void> {
-    if (selectedApps.length === 0) {
-      showToast('Vui lòng chọn các ứng dụng để bỏ chặn.', 'info');
-      return;
-    }
-
-    try {
-      await window.go.main.App.UnblockApps(selectedApps);
-      showToast(`Đã bỏ chặn: ${selectedApps.join(', ')}`, 'success');
-      loadBlocklist();
-      selectedApps = [];
-    } catch (error) {
-      console.error('Error unblocking apps:', error);
-      showToast('Lỗi khi bỏ chặn ứng dụng.', 'error');
-    }
-  }
-
-  async function clearBlocklist(): Promise<void> {
-    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách chặn không?')) {
-      try {
-        await window.go.main.App.ClearAppBlocklist();
-        showToast('Đã xóa toàn bộ danh sách chặn.', 'success');
-        loadBlocklist();
-      } catch (error) {
-        console.error('Error clearing blocklist:', error);
-        showToast('Lỗi khi xóa danh sách chặn.', 'error');
-      }
-    }
-  }
-
-  async function saveBlocklist(): Promise<void> {
-    try {
-      const data = await window.go.main.App.SaveAppBlocklist();
-      const blob = new Blob([JSON.stringify(data)], {
-        type: 'application/json',
-      });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = 'procguard_blocklist.json';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error saving blocklist:', error);
-      showToast('Lỗi khi lưu danh sách chặn.', 'error');
-    }
-  }
-
-  async function loadBlocklistFile(event: Event): Promise<void> {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) {
-      return;
-    }
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      await window.go.main.App.LoadAppBlocklist(data);
-      showToast('Đã tải lên và hợp nhất danh sách chặn.', 'success');
-      loadBlocklist();
-    } catch (error) {
-      console.error('Error loading blocklist file:', error);
-      showToast('Lỗi khi tải danh sách chặn.', 'error');
-    }
-  }
-
-  onMount(() => {
+  try {
+    await window.go.main.App.UnblockApps(selectedApps);
+    showToast(`Đã bỏ chặn: ${selectedApps.join(', ')}`, 'success');
     loadBlocklist();
-  });
+    selectedApps = [];
+  } catch (error) {
+    console.error('Error unblocking apps:', error);
+    showToast('Lỗi khi bỏ chặn ứng dụng.', 'error');
+  }
+}
+
+async function clearBlocklist(): Promise<void> {
+  if (confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách chặn không?')) {
+    try {
+      await window.go.main.App.ClearAppBlocklist();
+      showToast('Đã xóa toàn bộ danh sách chặn.', 'success');
+      loadBlocklist();
+    } catch (error) {
+      console.error('Error clearing blocklist:', error);
+      showToast('Lỗi khi xóa danh sách chặn.', 'error');
+    }
+  }
+}
+
+async function saveBlocklist(): Promise<void> {
+  try {
+    const data = await window.go.main.App.SaveAppBlocklist();
+    const blob = new Blob([JSON.stringify(data)], {
+      type: 'application/json',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'procguard_blocklist.json';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error saving blocklist:', error);
+    showToast('Lỗi khi lưu danh sách chặn.', 'error');
+  }
+}
+
+async function loadBlocklistFile(event: Event): Promise<void> {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) {
+    return;
+  }
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    await window.go.main.App.LoadAppBlocklist(data);
+    showToast('Đã tải lên và hợp nhất danh sách chặn.', 'success');
+    loadBlocklist();
+  } catch (error) {
+    console.error('Error loading blocklist file:', error);
+    showToast('Lỗi khi tải danh sách chặn.', 'error');
+  }
+}
+
+onMount(() => {
+  loadBlocklist();
+});
 </script>
 
 <div class="card mt-3">

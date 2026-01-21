@@ -64,10 +64,10 @@ export function stopPolling() {
 export async function registerExtension() {
   try {
     await window.go.main.App.RegisterExtension(
-      'hkanepohpflociaodcicmmfbdaohpceo'
+      'hkanepohpflociaodcicmmfbdaohpceo',
     );
     await window.go.main.App.RegisterExtension(
-      'gpaafgcbiejjpfdgmjglehboafdicdjb'
+      'gpaafgcbiejjpfdgmjglehboafdicdjb',
     );
     console.log('Extension registered');
     // Force immediate re-check

@@ -1,50 +1,50 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { showToast } from './toastStore';
+import { onMount } from 'svelte';
+import { showToast } from './toastStore';
 
-  interface WebLeaderboardItem {
-    rank: number;
-    domain: string;
-    title: string;
-    icon: string;
-    count: number;
-  }
+interface WebLeaderboardItem {
+  rank: number;
+  domain: string;
+  title: string;
+  icon: string;
+  count: number;
+}
 
-  let leaderboardData: WebLeaderboardItem[] = [];
+let leaderboardData: WebLeaderboardItem[] = [];
 
-  async function loadWebLeaderboard(since = '', until = ''): Promise<void> {
-    try {
-      const data = await window.go.main.App.GetWebLeaderboard(since, until);
-      if (data && data.length > 0) {
-        leaderboardData = data;
-      } else {
-        leaderboardData = [];
-      }
-    } catch (error) {
-      console.error('Error loading web leaderboard:', error);
+async function loadWebLeaderboard(since = '', until = ''): Promise<void> {
+  try {
+    const data = await window.go.main.App.GetWebLeaderboard(since, until);
+    if (data && data.length > 0) {
+      leaderboardData = data;
+    } else {
       leaderboardData = [];
     }
+  } catch (error) {
+    console.error('Error loading web leaderboard:', error);
+    leaderboardData = [];
   }
+}
 
-  async function blockDomain(domain: string): Promise<void> {
-    try {
-      await window.go.main.App.AddWebBlocklist(domain);
-      showToast(`Đã chặn ${domain}`, 'success');
-      loadWebLeaderboard(); // Refresh
-    } catch (error) {
-      console.error('Error blocking domain:', error);
-      showToast('Lỗi khi chặn trang web.', 'error');
-    }
+async function blockDomain(domain: string): Promise<void> {
+  try {
+    await window.go.main.App.AddWebBlocklist(domain);
+    showToast(`Đã chặn ${domain}`, 'success');
+    loadWebLeaderboard(); // Refresh
+  } catch (error) {
+    console.error('Error blocking domain:', error);
+    showToast('Lỗi khi chặn trang web.', 'error');
   }
+}
 
-  onMount(() => {
+onMount(() => {
+  loadWebLeaderboard();
+  const pollingTimer = setInterval(() => {
     loadWebLeaderboard();
-    const pollingTimer = setInterval(() => {
-      loadWebLeaderboard();
-    }, 5000); // 5 seconds
+  }, 5000); // 5 seconds
 
-    return () => clearInterval(pollingTimer);
-  });
+  return () => clearInterval(pollingTimer);
+});
 </script>
 
 <div class="card mt-3">

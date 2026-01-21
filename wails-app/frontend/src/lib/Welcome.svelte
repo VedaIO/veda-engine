@@ -1,51 +1,51 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { navigate } from './router';
+import { onMount } from 'svelte';
+import { navigate } from './router';
 
-  interface ScreenTimeItem {
-    name: string;
-    executablePath: string;
-    icon: string;
-    durationSeconds: number;
+interface ScreenTimeItem {
+  name: string;
+  executablePath: string;
+  icon: string;
+  durationSeconds: number;
+}
+
+let screenTimeData: ScreenTimeItem[] = [];
+let totalScreenTime = 0;
+
+// Format seconds to "Xh Xm" or "Xm Xs"
+function formatDuration(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}p`;
+  } else if (minutes > 0) {
+    return `${minutes}p ${secs}s`;
   }
+  return `${secs}s`;
+}
 
-  let screenTimeData: ScreenTimeItem[] = [];
-  let totalScreenTime = 0;
+async function loadScreenTime(): Promise<void> {
+  try {
+    const data = await window.go.main.App.GetScreenTime();
+    screenTimeData = data || [];
 
-  // Format seconds to "Xh Xm" or "Xm Xs"
-  function formatDuration(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}p`;
-    } else if (minutes > 0) {
-      return `${minutes}p ${secs}s`;
-    }
-    return `${secs}s`;
+    const total = await window.go.main.App.GetTotalScreenTime();
+    totalScreenTime = total || 0;
+  } catch (error) {
+    console.error('Error loading screen time:', error);
+    screenTimeData = [];
+    totalScreenTime = 0;
   }
+}
 
-  async function loadScreenTime(): Promise<void> {
-    try {
-      const data = await window.go.main.App.GetScreenTime();
-      screenTimeData = data || [];
-
-      const total = await window.go.main.App.GetTotalScreenTime();
-      totalScreenTime = total || 0;
-    } catch (error) {
-      console.error('Error loading screen time:', error);
-      screenTimeData = [];
-      totalScreenTime = 0;
-    }
-  }
-
-  onMount(() => {
-    loadScreenTime();
-    // Refresh every 10 seconds
-    const timer = setInterval(loadScreenTime, 10000);
-    return () => clearInterval(timer);
-  });
+onMount(() => {
+  loadScreenTime();
+  // Refresh every 10 seconds
+  const timer = setInterval(loadScreenTime, 10000);
+  return () => clearInterval(timer);
+});
 </script>
 
 <div id="welcome-view">

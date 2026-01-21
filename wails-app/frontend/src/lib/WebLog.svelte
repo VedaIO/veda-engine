@@ -1,134 +1,129 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
-  import { showToast } from './toastStore';
-  import DateRangePicker from './DateRangePicker.svelte';
+import { onMount } from 'svelte';
+import { writable } from 'svelte/store';
+import { showToast } from './toastStore';
+import DateRangePicker from './DateRangePicker.svelte';
 
-  interface WebLogItem {
-    timestamp: string;
-    url: string;
-    domain: string;
-    title: string;
-    iconUrl: string;
-  }
+interface WebLogItem {
+  timestamp: string;
+  url: string;
+  domain: string;
+  title: string;
+  iconUrl: string;
+}
 
-  let q = '';
-  let webLogItems = writable<WebLogItem[]>([]);
-  let since: Date | null = null;
-  let until: Date | null = new Date();
+let q = '';
+let webLogItems = writable<WebLogItem[]>([]);
+let since: Date | null = null;
+let until: Date | null = new Date();
 
-  function formatDateTime(date: Date | null): string {
-    if (!date) return '';
-    return date.toISOString();
-  }
+function formatDateTime(date: Date | null): string {
+  if (!date) return '';
+  return date.toISOString();
+}
 
-  async function loadWebLogs(
-    query: string,
-    sinceStr: string,
-    untilStr: string
-  ): Promise<void> {
-    console.log('loadWebLogs called with:', { query, sinceStr, untilStr });
-    try {
-      const data = await window.go.main.App.GetWebLogs(
-        query,
-        sinceStr,
-        untilStr
-      );
-      console.log('GetWebLogs returned:', data);
+async function loadWebLogs(
+  query: string,
+  sinceStr: string,
+  untilStr: string,
+): Promise<void> {
+  console.log('loadWebLogs called with:', { query, sinceStr, untilStr });
+  try {
+    const data = await window.go.main.App.GetWebLogs(query, sinceStr, untilStr);
+    console.log('GetWebLogs returned:', data);
 
-      if (data && data.length > 0) {
-        const items: WebLogItem[] = await Promise.all(
-          data.map(async (l: string[]) => {
-            const urlString = l[1];
-            let domain = '';
+    if (data && data.length > 0) {
+      const items: WebLogItem[] = await Promise.all(
+        data.map(async (l: string[]) => {
+          const urlString = l[1];
+          let domain = '';
+          try {
+            const url = new URL(urlString);
+            domain = url.hostname;
+          } catch {
+            // Ignore invalid URLs
+          }
+
+          let title = '';
+          let iconUrl = '';
+          if (domain) {
             try {
-              const url = new URL(urlString);
-              domain = url.hostname;
-            } catch {
-              // Ignore invalid URLs
+              const webDetails = await window.go.main.App.GetWebDetails(domain);
+              title = webDetails.title;
+              iconUrl = webDetails.iconUrl;
+            } catch (error) {
+              console.error('Error fetching web details:', error);
             }
+          }
 
-            let title = '';
-            let iconUrl = '';
-            if (domain) {
-              try {
-                const webDetails =
-                  await window.go.main.App.GetWebDetails(domain);
-                title = webDetails.title;
-                iconUrl = webDetails.iconUrl;
-              } catch (error) {
-                console.error('Error fetching web details:', error);
-              }
-            }
+          const timestamp = l[0];
 
-            const timestamp = l[0];
-
-            return {
-              timestamp,
-              url: urlString,
-              domain,
-              title,
-              iconUrl,
-            };
-          })
-        );
-        console.log('Processed items:', items);
-        webLogItems.set(items);
-      } else {
-        console.log('No data returned');
-        webLogItems.set([]);
-      }
-    } catch (error) {
-      console.error('Error loading web logs:', error);
+          return {
+            timestamp,
+            url: urlString,
+            domain,
+            title,
+            iconUrl,
+          };
+        }),
+      );
+      console.log('Processed items:', items);
+      webLogItems.set(items);
+    } else {
+      console.log('No data returned');
       webLogItems.set([]);
     }
+  } catch (error) {
+    console.error('Error loading web logs:', error);
+    webLogItems.set([]);
+  }
+}
+
+function handleDateChange(
+  event: CustomEvent<{ since: Date | null; until: Date | null }>,
+) {
+  since = event.detail.since;
+  until = event.detail.until;
+  loadWebLogs(q, formatDateTime(since), formatDateTime(until));
+}
+
+async function blockSelectedWebsites(): Promise<void> {
+  const selectedDomains = Array.from(
+    document.querySelectorAll('input[name="web-log-domain"]:checked'),
+  ).map((cb) => (cb as HTMLInputElement).value);
+  if (selectedDomains.length === 0) {
+    showToast('Vui lòng chọn một trang web để chặn.', 'info');
+    return;
   }
 
-  function handleDateChange(
-    event: CustomEvent<{ since: Date | null; until: Date | null }>
-  ) {
-    since = event.detail.since;
-    until = event.detail.until;
-    loadWebLogs(q, formatDateTime(since), formatDateTime(until));
-  }
+  const uniqueDomains = [...new Set(selectedDomains)];
 
-  async function blockSelectedWebsites(): Promise<void> {
-    const selectedDomains = Array.from(
-      document.querySelectorAll('input[name="web-log-domain"]:checked')
-    ).map((cb) => (cb as HTMLInputElement).value);
-    if (selectedDomains.length === 0) {
-      showToast('Vui lòng chọn một trang web để chặn.', 'info');
-      return;
+  try {
+    for (const domain of uniqueDomains) {
+      await window.go.main.App.AddWebBlocklist(domain);
     }
 
-    const uniqueDomains = [...new Set(selectedDomains)];
-
-    try {
-      for (const domain of uniqueDomains) {
-        await window.go.main.App.AddWebBlocklist(domain);
-      }
-
-      showToast(
-        'Các trang web đã chọn đã được thêm vào danh sách chặn.',
-        'success'
-      );
-      (
-        document.querySelectorAll(
-          'input[name="web-log-domain"]:checked'
-        ) as NodeListOf<HTMLInputElement>
-      ).forEach((cb) => (cb.checked = false));
-    } catch (error) {
-      console.error('Error blocking websites:', error);
-      showToast('Lỗi khi chặn trang web.', 'error');
-    }
+    showToast(
+      'Các trang web đã chọn đã được thêm vào danh sách chặn.',
+      'success',
+    );
+    (
+      document.querySelectorAll(
+        'input[name="web-log-domain"]:checked',
+      ) as NodeListOf<HTMLInputElement>
+    ).forEach((cb) => (cb.checked = false));
+  } catch (error) {
+    console.error('Error blocking websites:', error);
+    showToast('Lỗi khi chặn trang web.', 'error');
   }
+}
 
-  onMount(() => {
-    const now = new Date();
-    since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
-    until = new Date();
-    loadWebLogs(q, formatDateTime(since), formatDateTime(until));
-  });
+onMount(() => {
+  const now = new Date();
+  since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+  until = new Date();
+  loadWebLogs(q, formatDateTime(since), formatDateTime(until));
+});
 </script>
 
 <div class="card mt-3">

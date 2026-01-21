@@ -10,9 +10,9 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "format": "biome format --write .",
-    "lint:fix": "biome check --write .",
+    "format-check": "biome format .",
     "lint": "biome check .",
-    "format-check": "prettier --check ."
+    "lint:fix": "biome check --write ."
   },
   "keywords": [],
   "author": "",

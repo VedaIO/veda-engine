@@ -1,84 +1,84 @@
 <script lang="ts">
-  import { currentPath, navigate } from './lib/router';
-  import Welcome from './lib/Welcome.svelte';
-  import AppManagement from './lib/AppManagement.svelte';
-  import WebManagement from './lib/WebManagement.svelte';
-  import Settings from './lib/Settings.svelte';
-  import Login from './lib/Login.svelte';
-  import { onMount } from 'svelte';
-  import { isAuthenticated } from './lib/authStore';
-  import Toast from './lib/Toast.svelte';
-  import GlobalTitleBar from './lib/GlobalTitleBar.svelte';
-  import {
-    isConfirmModalOpen,
-    confirmModalPassword,
-    confirmModalError,
-    confirmModalTitle,
-    handleConfirmSubmit,
-  } from './lib/modalStore';
+import { currentPath, navigate } from './lib/router';
+import Welcome from './lib/Welcome.svelte';
+import AppManagement from './lib/AppManagement.svelte';
+import WebManagement from './lib/WebManagement.svelte';
+import Settings from './lib/Settings.svelte';
+import Login from './lib/Login.svelte';
+import { onMount } from 'svelte';
+import { isAuthenticated } from './lib/authStore';
+import Toast from './lib/Toast.svelte';
+import GlobalTitleBar from './lib/GlobalTitleBar.svelte';
+import {
+  isConfirmModalOpen,
+  confirmModalPassword,
+  confirmModalError,
+  confirmModalTitle,
+  handleConfirmSubmit,
+} from './lib/modalStore';
 
-  const routes: { [key: string]: any } = {
-    '/': Welcome,
-    '/apps': AppManagement,
-    '/web': WebManagement,
-    '/settings': Settings,
-    '/login': Login,
-  };
+const routes: { [key: string]: any } = {
+  '/': Welcome,
+  '/apps': AppManagement,
+  '/web': WebManagement,
+  '/settings': Settings,
+  '/login': Login,
+};
 
-  import { checkExtension } from './lib/extensionStore';
+import { checkExtension } from './lib/extensionStore';
 
-  /**
-   * Handle stopping the ProcGuard daemon completely
-   * This is different from just closing the window - it stops background monitoring
-   */
-  async function handleStop() {
-    if (confirm('Bạn có chắc chắn muốn dừng ProcGuard không?')) {
-      try {
-        await window.go.main.App.Stop();
-        alert('ProcGuard đã được dừng.');
-      } catch (error) {
-        console.error('Lỗi khi dừng ProcGuard:', error);
-        alert('Đã có lỗi xảy ra khi cố gắng dừng ProcGuard.');
-      }
-    }
-  }
-
-  /**
-   * Handle user logout
-   * Calls backend Logout method then navigates to login page
-   * CRITICAL: Must call backend first to clear session, then update frontend state
-   */
-  async function handleLogout() {
+/**
+ * Handle stopping the ProcGuard daemon completely
+ * This is different from just closing the window - it stops background monitoring
+ */
+async function handleStop() {
+  if (confirm('Bạn có chắc chắn muốn dừng ProcGuard không?')) {
     try {
-      // Call backend to clear authentication session
-      await window.go.main.App.Logout();
-      // Update frontend state
-      isAuthenticated.set(false);
-      // Navigate to login page using hash routing
-      navigate('/login');
+      await window.go.main.App.Stop();
+      alert('ProcGuard đã được dừng.');
     } catch (error) {
-      console.error('Lỗi khi đăng xuất:', error);
-      alert('Đã có lỗi xảy ra khi đăng xuất.');
+      console.error('Lỗi khi dừng ProcGuard:', error);
+      alert('Đã có lỗi xảy ra khi cố gắng dừng ProcGuard.');
     }
   }
+}
 
-  /**
-   * Check authentication status and extension on mount
-   * Extension polling starts automatically
-   */
-  onMount(async () => {
-    // Check extension status (starts polling automatically)
-    checkExtension();
+/**
+ * Handle user logout
+ * Calls backend Logout method then navigates to login page
+ * CRITICAL: Must call backend first to clear session, then update frontend state
+ */
+async function handleLogout() {
+  try {
+    // Call backend to clear authentication session
+    await window.go.main.App.Logout();
+    // Update frontend state
+    isAuthenticated.set(false);
+    // Navigate to login page using hash routing
+    navigate('/login');
+  } catch (error) {
+    console.error('Lỗi khi đăng xuất:', error);
+    alert('Đã có lỗi xảy ra khi đăng xuất.');
+  }
+}
 
-    // Check if user is authenticated
-    const authenticated = await window.go.main.App.GetIsAuthenticated();
-    isAuthenticated.set(authenticated);
+/**
+ * Check authentication status and extension on mount
+ * Extension polling starts automatically
+ */
+onMount(async () => {
+  // Check extension status (starts polling automatically)
+  checkExtension();
 
-    // Redirect to login if not authenticated
-    if (!$isAuthenticated && $currentPath !== '/login') {
-      navigate('/login');
-    }
-  });
+  // Check if user is authenticated
+  const authenticated = await window.go.main.App.GetIsAuthenticated();
+  isAuthenticated.set(authenticated);
+
+  // Redirect to login if not authenticated
+  if (!$isAuthenticated && $currentPath !== '/login') {
+    navigate('/login');
+  }
+});
 </script>
 
 <div class="app-container">

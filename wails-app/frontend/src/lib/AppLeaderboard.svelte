@@ -1,55 +1,55 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { showToast } from './toastStore';
+import { onMount } from 'svelte';
+import { showToast } from './toastStore';
 
-  interface AppLeaderboardItem {
-    rank: number;
-    name: string;
-    processName: string;
-    icon: string;
-    count: number;
-  }
+interface AppLeaderboardItem {
+  rank: number;
+  name: string;
+  processName: string;
+  icon: string;
+  count: number;
+}
 
-  let leaderboardData: AppLeaderboardItem[] = [];
+let leaderboardData: AppLeaderboardItem[] = [];
 
-  async function loadAppLeaderboard(since = '', until = ''): Promise<void> {
-    try {
-      console.log('Fetching app leaderboard...', { since, until });
-      const data = await window.go.main.App.GetAppLeaderboard(since, until);
-      console.log('App leaderboard data received:', data);
-      if (data && data.length > 0) {
-        leaderboardData = data;
-      } else {
-        leaderboardData = [];
-      }
-    } catch (error) {
-      console.error('Error loading app leaderboard:', error);
+async function loadAppLeaderboard(since = '', until = ''): Promise<void> {
+  try {
+    console.log('Fetching app leaderboard...', { since, until });
+    const data = await window.go.main.App.GetAppLeaderboard(since, until);
+    console.log('App leaderboard data received:', data);
+    if (data && data.length > 0) {
+      leaderboardData = data;
+    } else {
       leaderboardData = [];
     }
+  } catch (error) {
+    console.error('Error loading app leaderboard:', error);
+    leaderboardData = [];
   }
+}
 
-  async function blockApp(
-    processName: string,
-    displayName: string
-  ): Promise<void> {
-    try {
-      await window.go.main.App.BlockApps([processName]);
-      showToast(`Đã chặn ${displayName}`, 'success');
-      loadAppLeaderboard(); // Refresh
-    } catch (error) {
-      console.error('Error blocking app:', error);
-      showToast('Lỗi khi chặn ứng dụng.', 'error');
-    }
+async function blockApp(
+  processName: string,
+  displayName: string,
+): Promise<void> {
+  try {
+    await window.go.main.App.BlockApps([processName]);
+    showToast(`Đã chặn ${displayName}`, 'success');
+    loadAppLeaderboard(); // Refresh
+  } catch (error) {
+    console.error('Error blocking app:', error);
+    showToast('Lỗi khi chặn ứng dụng.', 'error');
   }
+}
 
-  onMount(() => {
+onMount(() => {
+  loadAppLeaderboard();
+  const pollingTimer = setInterval(() => {
     loadAppLeaderboard();
-    const pollingTimer = setInterval(() => {
-      loadAppLeaderboard();
-    }, 5000); // 5 seconds
+  }, 5000); // 5 seconds
 
-    return () => clearInterval(pollingTimer);
-  });
+  return () => clearInterval(pollingTimer);
+});
 </script>
 
 <div class="card mt-3">

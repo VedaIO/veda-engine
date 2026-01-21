@@ -1,16 +1,16 @@
 <script lang="ts">
-  // Window runtime functions
-  function minimize() {
-    window.runtime.WindowMinimise();
-  }
+// Window runtime functions
+function minimize() {
+  window.runtime.WindowMinimise();
+}
 
-  function maximize() {
-    window.runtime.WindowToggleMaximise();
-  }
+function maximize() {
+  window.runtime.WindowToggleMaximise();
+}
 
-  function close() {
-    window.runtime.WindowHide();
-  }
+function close() {
+  window.runtime.WindowHide();
+}
 </script>
 
 <div class="title-bar" style="--wails-draggable: drag">

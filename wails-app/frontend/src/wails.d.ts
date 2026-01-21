@@ -26,7 +26,7 @@ declare global {
           GetWebLogs(
             arg1: string,
             arg2: string,
-            arg3: string
+            arg3: string,
           ): Promise<Array<any>>;
           HasPassword(): Promise<boolean>;
           LoadAppBlocklist(arg1: Array<number>): Promise<void>;

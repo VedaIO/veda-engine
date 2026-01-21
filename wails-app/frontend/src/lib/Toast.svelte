@@ -1,20 +1,20 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { toast } from './toastStore';
-  import { Toast } from 'bootstrap';
+import { onMount } from 'svelte';
+import { toast } from './toastStore';
+import { Toast } from 'bootstrap';
 
-  let toastElement: HTMLElement;
-  let toastInstance: Toast;
+let toastElement: HTMLElement;
+let toastInstance: Toast;
 
-  onMount(() => {
-    toastInstance = new Toast(toastElement, { autohide: true, delay: 3000 });
-  });
+onMount(() => {
+  toastInstance = new Toast(toastElement, { autohide: true, delay: 3000 });
+});
 
-  toast.subscribe((msg) => {
-    if (msg && toastInstance) {
-      toastInstance.show();
-    }
-  });
+toast.subscribe((msg) => {
+  if (msg && toastInstance) {
+    toastInstance.show();
+  }
+});
 </script>
 
 <div class="toast-container position-fixed end-0 p-3" style="top: 100px;">

@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import AppLeaderboard from './AppLeaderboard.svelte';
-  import AppSearch from './AppSearch.svelte';
-  import AppBlocklist from './AppBlocklist.svelte';
+import { onMount } from 'svelte';
+import AppLeaderboard from './AppLeaderboard.svelte';
+import AppSearch from './AppSearch.svelte';
+import AppBlocklist from './AppBlocklist.svelte';
 
-  let activeTab: 'leaderboard' | 'search' | 'blocklist' = 'leaderboard';
+let activeTab: 'leaderboard' | 'search' | 'blocklist' = 'leaderboard';
 
-  function showSubView(view: 'leaderboard' | 'search' | 'blocklist') {
-    activeTab = view;
-  }
+function showSubView(view: 'leaderboard' | 'search' | 'blocklist') {
+  activeTab = view;
+}
 
-  onMount(() => {
-    // Initial load for leaderboard
-    // This will be handled by the component itself
-  });
+onMount(() => {
+  // Initial load for leaderboard
+  // This will be handled by the component itself
+});
 </script>
 
 <div id="app-management-view">

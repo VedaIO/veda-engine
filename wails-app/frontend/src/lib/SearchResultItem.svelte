@@ -1,11 +1,11 @@
 <script lang="ts">
-  export let item: {
-    processName: string;
-    exePath: string;
-    commercialName: string;
-    icon: string;
-    otherInfo: string;
-  };
+export let item: {
+  processName: string;
+  exePath: string;
+  commercialName: string;
+  icon: string;
+  otherInfo: string;
+};
 </script>
 
 <!-- The outer label is now in the parent component -->

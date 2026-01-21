@@ -6,71 +6,71 @@
   approach that avoids these build issues.
 -->
 <script lang="ts">
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
-  import flatpickr from 'flatpickr';
-  import 'flatpickr/dist/flatpickr.css';
-  import { Vietnamese } from 'flatpickr/dist/l10n/vn.js';
-  import type { Instance } from 'flatpickr/dist/types/instance';
-  import type { Options } from 'flatpickr/dist/types/options';
+import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+import { Vietnamese } from 'flatpickr/dist/l10n/vn.js';
+import type { Instance } from 'flatpickr/dist/types/instance';
+import type { Options } from 'flatpickr/dist/types/options';
 
-  export let since: Date | null = null;
-  export let until: Date | null = null;
+export let since: Date | null = null;
+export let until: Date | null = null;
 
-  const dispatch = createEventDispatcher();
+const dispatch = createEventDispatcher();
 
-  let fromInput: HTMLInputElement;
-  let toInput: HTMLInputElement;
-  let fromInstance: Instance | undefined;
-  let toInstance: Instance | undefined;
+let fromInput: HTMLInputElement;
+let toInput: HTMLInputElement;
+let fromInstance: Instance | undefined;
+let toInstance: Instance | undefined;
 
-  const commonOptions: Partial<Options> = {
-    enableTime: true,
-    time_24hr: true,
-    dateFormat: 'Y-m-d H:i',
-    locale: Vietnamese,
+const commonOptions: Partial<Options> = {
+  enableTime: true,
+  time_24hr: true,
+  dateFormat: 'Y-m-d H:i',
+  locale: Vietnamese,
+};
+
+onMount(() => {
+  const fromOptions: Options = {
+    ...commonOptions,
+    defaultDate: since,
+    onChange: (selectedDates) => {
+      if (!selectedDates[0]) {
+        since = null;
+      } else {
+        since = selectedDates[0];
+        toInstance?.set('minDate', since);
+      }
+      dispatch('change', { since, until });
+    },
   };
 
-  onMount(() => {
-    const fromOptions: Options = {
-      ...commonOptions,
-      defaultDate: since,
-      onChange: (selectedDates) => {
-        if (!selectedDates[0]) {
-          since = null;
-        } else {
-          since = selectedDates[0];
-          toInstance?.set('minDate', since);
-        }
-        dispatch('change', { since, until });
-      },
-    };
+  const toOptions: Options = {
+    ...commonOptions,
+    defaultDate: until,
+    onChange: (selectedDates) => {
+      if (!selectedDates[0]) {
+        until = null;
+      } else {
+        until = selectedDates[0];
+        fromInstance?.set('maxDate', until);
+      }
+      dispatch('change', { since, until });
+    },
+  };
 
-    const toOptions: Options = {
-      ...commonOptions,
-      defaultDate: until,
-      onChange: (selectedDates) => {
-        if (!selectedDates[0]) {
-          until = null;
-        } else {
-          until = selectedDates[0];
-          fromInstance?.set('maxDate', until);
-        }
-        dispatch('change', { since, until });
-      },
-    };
+  if (fromInput) {
+    fromInstance = flatpickr(fromInput, fromOptions);
+  }
+  if (toInput) {
+    toInstance = flatpickr(toInput, toOptions);
+  }
+});
 
-    if (fromInput) {
-      fromInstance = flatpickr(fromInput, fromOptions);
-    }
-    if (toInput) {
-      toInstance = flatpickr(toInput, toOptions);
-    }
-  });
-
-  onDestroy(() => {
-    fromInstance?.destroy();
-    toInstance?.destroy();
-  });
+onDestroy(() => {
+  fromInstance?.destroy();
+  toInstance?.destroy();
+});
 </script>
 
 <div class="row g-2 align-items-center">

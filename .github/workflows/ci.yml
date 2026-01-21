@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - '**.go'
+      - '**.svelte'
+      - '**.ts'
       - '**.nix'
       - '**.yml'
       - '**.yaml'
@@ -12,6 +14,8 @@ on:
   pull_request:
     paths:
       - '**.go'
+      - '**.svelte'
+      - '**.ts'
       - '**.nix'
       - '**.yml'
       - '**.yaml'
