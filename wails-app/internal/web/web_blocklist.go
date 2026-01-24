@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-	"wails-app/internal/data"
+	"wails-app/internal/data/logger"
 )
 
 const webBlocklistFile = "web_blocklist.json"
@@ -35,7 +35,7 @@ func GetBlockedWebsitesWithDetails(db *sql.DB) ([]BlockedWebsiteDetail, error) {
 	for _, domain := range domains {
 		meta, err := GetWebMetadata(db, domain)
 		if err != nil {
-			data.GetLogger().Printf("Error querying web metadata for %s: %v", domain, err)
+			logger.GetLogger().Printf("Error querying web metadata for %s: %v", domain, err)
 			details = append(details, BlockedWebsiteDetail{Domain: domain})
 			continue
 		}

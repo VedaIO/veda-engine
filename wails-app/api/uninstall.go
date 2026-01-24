@@ -7,7 +7,6 @@ import (
 	"wails-app/internal/app"
 	"wails-app/internal/auth"
 	"wails-app/internal/config"
-	"wails-app/internal/data"
 	"wails-app/internal/data/logger"
 	"wails-app/internal/platform/autostart"
 	"wails-app/internal/platform/nativehost"
@@ -67,7 +66,7 @@ func (s *Server) Uninstall(password string) error {
 }
 
 // killOtherProcGuardProcesses finds and terminates any other running ProcGuard processes.
-func killOtherProcGuardProcesses(logger data.Logger) {
+func killOtherProcGuardProcesses(logger logger.Logger) {
 	currentPid := os.Getpid()
 	procs, err := process.Processes()
 	if err != nil {

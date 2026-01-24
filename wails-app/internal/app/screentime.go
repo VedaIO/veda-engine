@@ -3,7 +3,7 @@ package app
 import (
 	"database/sql"
 	"time"
-	"wails-app/internal/data"
+	"wails-app/internal/data/logger"
 	"wails-app/internal/data/write"
 	"wails-app/internal/platform/screentime"
 
@@ -49,7 +49,7 @@ func ResetScreenTime() {
 // StartScreenTimeMonitor initializes and starts the background goroutine for tracking screen time.
 // It uses a ticker to poll the foreground window at regular intervals and buffers updates
 // to reduce database I/O.
-func StartScreenTimeMonitor(appLogger data.Logger, db *sql.DB) {
+func StartScreenTimeMonitor(appLogger logger.Logger, db *sql.DB) {
 	go func() {
 		state := &ScreenTimeState{
 			lastFlushTime: time.Now(),
@@ -74,7 +74,7 @@ func StartScreenTimeMonitor(appLogger data.Logger, db *sql.DB) {
 }
 
 // trackForegroundWindow performs a single check of the active window and updates the state.
-func trackForegroundWindow(appLogger data.Logger, state *ScreenTimeState) {
+func trackForegroundWindow(appLogger logger.Logger, state *ScreenTimeState) {
 	// Retrieve the active window information from the platform-specific implementation.
 	info := screentime.GetActiveWindowInfo()
 	if info == nil || info.PID == 0 {
@@ -156,7 +156,7 @@ func trackForegroundWindow(appLogger data.Logger, state *ScreenTimeState) {
 
 // flushScreenTime writes the buffered duration to the database.
 // It updates the most recent record for the given app and title, adding the buffered duration.
-func flushScreenTime(logger data.Logger, exePath, title string, duration int) {
+func flushScreenTime(l logger.Logger, exePath, title string, duration int) {
 	write.EnqueueWrite(`
 		UPDATE screen_time 
 		SET duration_seconds = duration_seconds + ?

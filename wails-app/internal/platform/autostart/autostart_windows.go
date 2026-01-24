@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"wails-app/internal/config"
-	"wails-app/internal/data"
+	"wails-app/internal/data/logger"
 
 	"golang.org/x/sys/windows/registry"
 )
@@ -32,7 +32,7 @@ func EnsureAutostart() (string, error) {
 	}
 	defer func() {
 		if err := key.Close(); err != nil {
-			data.GetLogger().Printf("Failed to close registry key: %v", err)
+			logger.GetLogger().Printf("Failed to close registry key: %v", err)
 		}
 	}()
 
@@ -76,7 +76,7 @@ func RemoveAutostart() error {
 	}
 	defer func() {
 		if err := key.Close(); err != nil {
-			data.GetLogger().Printf("Failed to close registry key: %v", err)
+			logger.GetLogger().Printf("Failed to close registry key: %v", err)
 		}
 	}()
 
@@ -129,7 +129,7 @@ func copyExecutableToAppData() (string, error) {
 	}
 	defer func() {
 		if err := sourceFile.Close(); err != nil {
-			data.GetLogger().Printf("Failed to close source file: %v", err)
+			logger.GetLogger().Printf("Failed to close source file: %v", err)
 		}
 	}()
 
@@ -139,7 +139,7 @@ func copyExecutableToAppData() (string, error) {
 	}
 	defer func() {
 		if err := destFile.Close(); err != nil {
-			data.GetLogger().Printf("Failed to close destination file: %v", err)
+			logger.GetLogger().Printf("Failed to close destination file: %v", err)
 		}
 	}()
 

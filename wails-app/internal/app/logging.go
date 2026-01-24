@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"wails-app/internal/data"
 	"wails-app/internal/data/logger"
 	"wails-app/internal/data/write"
 	"wails-app/internal/platform/executable"
@@ -72,7 +71,7 @@ func StartProcessEventLogger(appLogger logger.Logger, db *sql.DB) {
 	}()
 }
 
-func logEndedProcesses(appLogger data.Logger, db *sql.DB, runningProcs, currentProcs map[int32]bool) {
+func logEndedProcesses(appLogger logger.Logger, db *sql.DB, runningProcs, currentProcs map[int32]bool) {
 	for pid := range runningProcs {
 		if !currentProcs[pid] {
 			write.EnqueueWrite("UPDATE app_events SET end_time = ? WHERE pid = ? AND end_time IS NULL", time.Now().Unix(), pid)
@@ -81,7 +80,7 @@ func logEndedProcesses(appLogger data.Logger, db *sql.DB, runningProcs, currentP
 	}
 }
 
-func logNewProcesses(appLogger data.Logger, db *sql.DB, runningProcs map[int32]bool, procs []*process.Process) {
+func logNewProcesses(appLogger logger.Logger, db *sql.DB, runningProcs map[int32]bool, procs []*process.Process) {
 	for _, p := range procs {
 		if !runningProcs[p.Pid] {
 			if shouldLogProcess(p) {
