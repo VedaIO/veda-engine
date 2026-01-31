@@ -39,7 +39,11 @@ jobs:
         with:
           determinate: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
+      
+      - name: Build Frontend
+        run: |
+          nix develop --command bash -c "cd wails-app/frontend && bun run build"
+      
       - name: Run Linter
         run: |
           nix develop --command bash -c "cd wails-app && make lint"
