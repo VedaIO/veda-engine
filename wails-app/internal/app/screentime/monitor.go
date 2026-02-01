@@ -6,9 +6,8 @@ import (
 	"wails-app/internal/data/logger"
 	"wails-app/internal/data/write"
 	"wails-app/internal/platform/app_filter"
+	"wails-app/internal/platform/proc_sensing"
 	platformScreentime "wails-app/internal/platform/screentime"
-
-	"github.com/shirou/gopsutil/v3/process"
 )
 
 const (
@@ -32,7 +31,7 @@ func StartScreenTimeMonitor(appLogger logger.Logger, db *sql.DB) {
 	go func() {
 		state := &ScreenTimeState{
 			LastFlushTime: time.Now(),
-			ExeCache:      make(map[uint32]CachedProcInfo),
+			ExeCache:      make(map[string]CachedProcInfo),
 		}
 		ticker := time.NewTicker(screenTimeCheckInterval)
 		defer ticker.Stop()
@@ -43,10 +42,10 @@ func StartScreenTimeMonitor(appLogger logger.Logger, db *sql.DB) {
 				trackForegroundWindow(appLogger, state)
 			case <-resetScreenTimeCh:
 				appLogger.Printf("[Screentime] Reset signal received. Clearing in-memory state.")
+				state.LastUniqueKey = ""
 				state.LastExePath = ""
-				state.LastTitle = ""
 				state.PendingDuration = 0
-				state.ExeCache = make(map[uint32]CachedProcInfo)
+				state.ExeCache = make(map[string]CachedProcInfo)
 			}
 		}
 	}()
@@ -60,72 +59,57 @@ func trackForegroundWindow(appLogger logger.Logger, state *ScreenTimeState) {
 		return
 	}
 
-	exePath := ""
-
-	// Get process object to check creation time for validation
-	proc, err := process.NewProcess(int32(info.PID))
-	if err == nil {
-		createTime, err := proc.CreateTime()
-		if err == nil {
-			// Check cache
-			cached, ok := state.ExeCache[info.PID]
-			if ok && cached.CreationTime == createTime {
-				// Cache hit and validated!
-				exePath = cached.ExePath
-			} else {
-				// Cache miss or obsolete PID. Resolve path.
-				path, err := proc.Exe()
-				if err == nil {
-					exePath = path
-					state.ExeCache[info.PID] = CachedProcInfo{
-						ExePath:      path,
-						CreationTime: createTime,
-					}
-				}
-			}
-		}
-	}
-
-	if exePath == "" {
-		// Fallback if we couldn't get creation time or process info (rare race condition or permission issue)
+	// Use targeted sensing for the specific foreground PID to minimize system overhead.
+	activeProc, err := proc_sensing.GetProcessByPID(info.PID)
+	if err != nil {
 		return
 	}
+
+	uniqueKey := activeProc.UniqueKey()
+	exePath := activeProc.ExePath
 
 	// Filter out applications that should not be tracked (e.g., system services).
-	if app_filter.ShouldExclude(exePath, proc) {
+	if app_filter.ShouldExclude(exePath, &activeProc) {
 		return
 	}
 
-	// Check if the user is still in the same window as the last check.
-	if exePath == state.LastExePath && info.Title == state.LastTitle {
-		// Same window: increment the memory buffer. We don't write to DB yet.
+	// track based on unique process instance identity.
+	// We aggregate by executable path to avoid redundant entries when window titles change.
+	if uniqueKey == state.LastUniqueKey {
+		// Same app: increment the memory buffer. We don't write to DB yet.
 		state.PendingDuration++
 	} else {
-		// Window changed: we must flush the accumulated time for the *previous* window.
+		// App changed: flush the accumulated time for the *previous* app.
 		if state.PendingDuration > 0 {
-			flushScreenTime(appLogger, state.LastExePath, state.LastTitle, state.PendingDuration)
+			flushScreenTime(appLogger, state.LastExePath, state.PendingDuration)
 		}
 
-		// Insert a new record for the *new* window session.
-		// We insert with 1 second duration to establish the record.
+		// Update existing record for this app if it was recently active, otherwise create a new one.
 		now := time.Now().Unix()
-		appLogger.Printf("[Screentime] New window: %s (%s)", exePath, info.Title)
+		appLogger.Printf("[Screentime] Focus shifted to: %s", exePath)
+
+		// Attempt to update a record if it was active in the last 5 minutes.
 		write.EnqueueWrite(`
-			INSERT INTO screen_time (executable_path, window_title, timestamp, duration_seconds)
-			VALUES (?, ?, ?, 1)
-		`, exePath, info.Title, now)
+			INSERT INTO screen_time (executable_path, timestamp, duration_seconds)
+			SELECT ?, ?, 1
+			WHERE NOT EXISTS (
+				SELECT 1 FROM screen_time 
+				WHERE executable_path = ? AND timestamp > ?
+				ORDER BY timestamp DESC LIMIT 1
+			)
+		`, exePath, now, exePath, now-300)
 
 		// Update our state to reflect the new active window.
+		state.LastUniqueKey = uniqueKey
 		state.LastExePath = exePath
-		state.LastTitle = info.Title
-		state.PendingDuration = 0 // Duration is 0 because we just inserted 1s in the DB.
+		state.PendingDuration = 0
 	}
 
 	// Periodically flush the buffer to the DB, even if the window hasn't changed.
 	// This ensures the UI shows relatively up-to-date data during long sessions in one app.
 	if time.Since(state.LastFlushTime) >= dbFlushInterval {
 		if state.PendingDuration > 0 {
-			flushScreenTime(appLogger, state.LastExePath, state.LastTitle, state.PendingDuration)
+			flushScreenTime(appLogger, state.LastExePath, state.PendingDuration)
 			state.PendingDuration = 0 // Reset buffer after flush.
 		}
 		state.LastFlushTime = time.Now()

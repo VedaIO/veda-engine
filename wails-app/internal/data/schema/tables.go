@@ -9,7 +9,8 @@ const AppSchema = `
 		parent_process_name TEXT,
 		exe_path TEXT,
 		start_time INTEGER NOT NULL,
-		end_time INTEGER
+		end_time INTEGER,
+		process_instance_key TEXT
 	);
 
 	-- Indexes to speed up queries on app_events.
@@ -50,7 +51,6 @@ const AppSchema = `
 	CREATE TABLE IF NOT EXISTS screen_time (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		executable_path TEXT,
-		window_title TEXT,
 		timestamp INTEGER NOT NULL,
 		duration_seconds INTEGER DEFAULT 1
 	);
