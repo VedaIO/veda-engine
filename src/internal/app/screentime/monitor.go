@@ -61,6 +61,7 @@ func trackForegroundWindow(appLogger logger.Logger, state *ScreenTimeState, apps
 	// Use targeted sensing for the specific foreground PID to minimize system overhead.
 	activeProc, err := proc_sensing.GetProcessByPID(info.PID)
 	if err != nil {
+		appLogger.Printf("[Screentime] GetProcessByPID failed for PID %d: %v", info.PID, err)
 		return
 	}
 
@@ -69,6 +70,7 @@ func trackForegroundWindow(appLogger logger.Logger, state *ScreenTimeState, apps
 
 	// Filter out applications that should not be tracked (e.g., system services).
 	if app_filter.ShouldExclude(exePath, &activeProc) {
+		appLogger.Printf("[Screentime] Excluded by filter: %s", exePath)
 		return
 	}
 
@@ -80,6 +82,7 @@ func trackForegroundWindow(appLogger logger.Logger, state *ScreenTimeState, apps
 	} else {
 		// App changed: flush the accumulated time for the *previous* app.
 		if state.PendingDuration > 0 {
+			appLogger.Printf("[Screentime] Flushing %d seconds for %s", state.PendingDuration, state.LastExePath)
 			apps.UpdateScreenTime(state.LastExePath, state.PendingDuration)
 		}
 
@@ -99,6 +102,7 @@ func trackForegroundWindow(appLogger logger.Logger, state *ScreenTimeState, apps
 	// This ensures the UI shows relatively up-to-date data during long sessions in one app.
 	if time.Since(state.LastFlushTime) >= dbFlushInterval {
 		if state.PendingDuration > 0 {
+			appLogger.Printf("[Screentime] Periodic flush: %d seconds for %s", state.PendingDuration, state.LastExePath)
 			apps.UpdateScreenTime(state.LastExePath, state.PendingDuration)
 			state.PendingDuration = 0 // Reset buffer after flush.
 		}

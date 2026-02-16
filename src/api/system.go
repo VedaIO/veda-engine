@@ -3,12 +3,12 @@ package api
 import (
 	"fmt"
 	"os"
-	app_logic "src/internal/app"
 	"src/internal/app/screentime"
 	"src/internal/auth"
 	app_blocklist "src/internal/blocklist/app"
 	"src/internal/config"
 	"src/internal/data/history"
+	"src/internal/monitoring"
 	"src/internal/platform/autostart"
 	"src/internal/platform/nativehost"
 	"src/internal/platform/proc_sensing"
@@ -97,7 +97,7 @@ func (s *Server) ClearAppHistory(password string) error {
 	}
 
 	history.ClearAppHistory()
-	app_logic.ResetLoggedApps()
+	monitoring.ResetGlobalManager()
 	screentime.ResetScreenTime()
 	return nil
 }
