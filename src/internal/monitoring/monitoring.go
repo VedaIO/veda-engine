@@ -5,8 +5,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"src/internal/data/logger"
-	"src/internal/platform/proc_sensing"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/platform/proc_sensing"
 )
 
 // DefaultPollingInterval is the default interval between process snapshots.

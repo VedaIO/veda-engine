@@ -8,9 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"src/internal/data"
-	"src/internal/data/repository"
-	"src/internal/data/write"
+	"veda-engine/src/internal/data"
+	"veda-engine/src/internal/data/repository"
+	"veda-engine/src/internal/data/write"
 	"time"
 )
 

@@ -3,10 +3,10 @@
 package app_filter
 
 import (
-	"src/internal/platform/executable"
-	"src/internal/platform/proc_sensing"
-	"src/internal/platform/process_integrity"
-	"src/internal/platform/window"
+	"veda-engine/src/internal/platform/executable"
+	"veda-engine/src/internal/platform/proc_sensing"
+	"veda-engine/src/internal/platform/process_integrity"
+	"veda-engine/src/internal/platform/window"
 	"strings"
 )
 

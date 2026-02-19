@@ -3,7 +3,7 @@ package native_messaging
 import (
 	"log"
 	"reflect"
-	blocklist "src/internal/blocklist/web"
+	blocklist "veda-engine/src/internal/blocklist/web"
 	"time"
 )
 

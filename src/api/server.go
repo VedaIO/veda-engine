@@ -2,10 +2,10 @@ package api
 
 import (
 	"database/sql"
-	"src/internal/data/logger"
-	"src/internal/data/repository"
-	"src/internal/platform/nativehost"
-	"src/internal/service/icon"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/repository"
+	"veda-engine/src/internal/platform/nativehost"
+	"veda-engine/src/internal/service/icon"
 	"sync"
 )
 

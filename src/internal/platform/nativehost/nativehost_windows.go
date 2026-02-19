@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/windows/registry"
-	"src/internal/data/logger"
+	"veda-engine/src/internal/data/logger"
 )
 
 const (

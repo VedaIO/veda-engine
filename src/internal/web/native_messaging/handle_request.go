@@ -3,8 +3,8 @@ package native_messaging
 import (
 	"encoding/json"
 	"log"
-	blocklist "src/internal/blocklist/web"
-	"src/internal/data/repository"
+	blocklist "veda-engine/src/internal/blocklist/web"
+	"veda-engine/src/internal/data/repository"
 )
 
 // handleRequest dispatches the incoming request to the appropriate handler logic.

@@ -2,10 +2,10 @@ package app
 
 import (
 	"fmt"
-	"src/internal/data/logger"
-	"src/internal/data/repository"
-	"src/internal/platform/app_filter"
-	"src/internal/platform/proc_sensing"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/repository"
+	"veda-engine/src/internal/platform/app_filter"
+	"veda-engine/src/internal/platform/proc_sensing"
 	"strings"
 	"sync"
 	"time"

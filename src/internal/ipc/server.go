@@ -1,3 +1,5 @@
+//go:build windows
+
 package ipc
 
 import (
@@ -9,7 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"src/api"
+	"veda-engine/src/api"
 
 	"github.com/Microsoft/go-winio"
 )

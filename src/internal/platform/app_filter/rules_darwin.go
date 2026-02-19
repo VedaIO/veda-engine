@@ -3,7 +3,7 @@
 package app_filter
 
 import (
-	"src/internal/platform/proc_sensing"
+	"veda-engine/src/internal/platform/proc_sensing"
 	"strings"
 )
 

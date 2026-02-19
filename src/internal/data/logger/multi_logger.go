@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"src/internal/data/write"
+	"veda-engine/src/internal/data/write"
 	"sync"
 	"time"
 )

@@ -1,9 +1,9 @@
 package icon
 
 import (
-	"src/internal/data/logger"
-	"src/internal/platform/executable"
-	"src/internal/platform/get_app_icon"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/platform/executable"
+	"veda-engine/src/internal/platform/get_app_icon"
 	"sync"
 )
 

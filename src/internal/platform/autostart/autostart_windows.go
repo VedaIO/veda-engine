@@ -7,8 +7,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"src/internal/config"
-	"src/internal/data/logger"
+	"veda-engine/src/internal/config"
+	"veda-engine/src/internal/data/logger"
 
 	"golang.org/x/sys/windows/registry"
 )

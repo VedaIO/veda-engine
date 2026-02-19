@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
-	"src/internal/data/connection"
-	"src/internal/data/schema"
-	"src/internal/data/write"
+	"veda-engine/src/internal/data/connection"
+	"veda-engine/src/internal/data/schema"
+	"veda-engine/src/internal/data/write"
 )
 
 var (

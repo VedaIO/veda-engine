@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
-	"src/internal/blocklist/app"
-	"src/internal/blocklist/web"
+	"veda-engine/src/internal/blocklist/app"
+	"veda-engine/src/internal/blocklist/web"
 	"strings"
 	"time"
 )

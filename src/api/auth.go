@@ -2,8 +2,8 @@ package api
 
 import (
 	"fmt"
-	"src/internal/auth"
-	"src/internal/config"
+	"veda-engine/src/internal/auth"
+	"veda-engine/src/internal/config"
 )
 
 // GetIsAuthenticated checks if the user is authenticated.

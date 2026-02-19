@@ -1,7 +1,7 @@
 package api
 
 import (
-	"src/internal/data/repository"
+	"veda-engine/src/internal/data/repository"
 	"strings"
 	"time"
 )

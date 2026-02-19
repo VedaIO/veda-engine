@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"src/internal/platform/blocklistlock"
+	"veda-engine/src/internal/platform/blocklistlock"
 	"strings"
 )
 

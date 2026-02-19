@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"src/internal/platform/nativehost"
+	"veda-engine/src/internal/platform/nativehost"
 )
 
 // EnsureExtensionInstalled checks if the extension is installed and installs it if not.

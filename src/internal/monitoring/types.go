@@ -1,7 +1,7 @@
 package monitoring
 
 import (
-	"src/internal/platform/proc_sensing"
+	"veda-engine/src/internal/platform/proc_sensing"
 	"time"
 )
 

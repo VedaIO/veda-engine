@@ -1,11 +1,11 @@
 package screentime
 
 import (
-	"src/internal/data/logger"
-	"src/internal/data/repository"
-	"src/internal/platform/app_filter"
-	"src/internal/platform/proc_sensing"
-	platformScreentime "src/internal/platform/screentime"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/repository"
+	"veda-engine/src/internal/platform/app_filter"
+	"veda-engine/src/internal/platform/proc_sensing"
+	platformScreentime "veda-engine/src/internal/platform/screentime"
 	"time"
 )
 

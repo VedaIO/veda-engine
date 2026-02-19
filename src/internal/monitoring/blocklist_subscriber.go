@@ -5,8 +5,8 @@ import (
 	"slices"
 	"strings"
 
-	"src/internal/blocklist/app"
-	"src/internal/data/logger"
+	"veda-engine/src/internal/blocklist/app"
+	"veda-engine/src/internal/data/logger"
 )
 
 // BlocklistSubscriber is a subscriber that enforces the application blocklist.

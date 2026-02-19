@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"src/internal/data/logger"
-	"src/internal/data/write"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/write"
 	"strconv"
 	"time"
 )

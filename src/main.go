@@ -4,15 +4,15 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"src/api"
-	"src/internal/app/screentime"
-	"src/internal/data"
-	"src/internal/data/logger"
-	"src/internal/ipc"
-	"src/internal/monitoring"
-	"src/internal/platform/autostart"
-	"src/internal/platform/nativehost"
-	"src/internal/web/native_messaging"
+	"veda-engine/src/api"
+	"veda-engine/src/internal/app/screentime"
+	"veda-engine/src/internal/data"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/ipc"
+	"veda-engine/src/internal/monitoring"
+	"veda-engine/src/internal/platform/autostart"
+	"veda-engine/src/internal/platform/nativehost"
+	"veda-engine/src/internal/web/native_messaging"
 	"strings"
 )
 
@@ -79,8 +79,8 @@ func main() {
 		log.Fatalf("Failed to start IPC server: %v", err)
 	}
 
-	// Keep the service running (actually listener.Accept() in Start() is blocking, 
-	// but if Start() were async we'd need this select. 
+	// Keep the service running (actually listener.Accept() in Start() is blocking,
+	// but if Start() were async we'd need this select.
 	// Current Start() is blocking so we won't even reach here until it stops.)
 	select {}
 }

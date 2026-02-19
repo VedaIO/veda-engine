@@ -1,8 +1,8 @@
 package monitoring
 
 import (
-	"src/internal/data/logger"
-	"src/internal/data/repository"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/repository"
 )
 
 // StartDefault creates and starts a monitoring manager with all standard subscribers wired up.
