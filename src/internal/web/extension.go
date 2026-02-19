@@ -14,7 +14,7 @@ func EnsureExtensionInstalled() error {
 	return nativehost.RegisterExtension(extensionId)
 }
 
-// CheckChromeExtension checks if the ProcGuard Chrome extension is installed
+// CheckChromeExtension checks if the Veda Chrome extension is installed
 // by looking for it in Chrome's extensions directory on the filesystem
 //
 // We check for both:

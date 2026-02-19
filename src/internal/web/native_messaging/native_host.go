@@ -19,7 +19,7 @@ import (
 func Run() {
 	// Setup logging to file (CRITICAL for debugging native messaging)
 	cacheDir, _ := os.UserCacheDir()
-	logDir := filepath.Join(cacheDir, "ProcGuard", "logs")
+	logDir := filepath.Join(cacheDir, "Veda", "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
 	logPath := filepath.Join(logDir, "native_host.log")
