@@ -2,7 +2,7 @@
 
 ## Overview
 
-This package implements the **Native Messaging Host** protocol to communicate with the ProcGuard Chrome Extension. It runs as a separate process launched by Chrome.
+This package implements the **Native Messaging Host** protocol to communicate with the Veda Chrome Extension. It runs as a separate process launched by Chrome.
 
 ## Protocol
 
@@ -66,13 +66,13 @@ Communication uses **Standard I/O (stdio)**.
 To allow the GUI to detect if the extension is active (since they are separate processes):
 
 1.  **Continuous Pulse:** The `Run()` loop starts a background ticker that runs every **2 seconds**.
-2.  **File Update:** It writes the current Unix timestamp to `%LocalAppData%\procguard\extension_heartbeat`.
+2.  **File Update:** It writes the current Unix timestamp to `%LocalAppData%\Veda\extension_heartbeat`.
 3.  **GUI Check:** The GUI reads this file. If the timestamp is <10 seconds old, the extension is "Connected".
 
 ## Debugging
 
 Since this process has no UI, it logs everything to:
-`%LocalAppData%\procguard\logs\native_host.log`
+`%LocalAppData%\Veda\logs\native_host.log`
 
 **Panic Recovery:**
 The `Run()` function includes a `defer recover()` block to catch and log any panics to the log file, preventing silent crashes.
