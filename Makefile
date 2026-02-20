@@ -2,10 +2,14 @@
 
 VERSION ?= $(shell git describe --tags --always --dirty --first-parent 2>/dev/null || echo "dev")
 
-.PHONY: all build fmt lint clean
+.PHONY: all build generate fmt lint clean
 
 all: build
-build:
+generate:
+	@echo "Generating version info..."
+	cd src && go generate
+
+build: generate
 	@echo "Building Veda Engine for windows..."
 	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu -Wl,--subsystem,windows" GOOS=windows GOARCH=amd64 go build -ldflags="-w -H=windowsgui -X main.Version=$(VERSION)" -o ./bin/veda-engine.exe ./src/
 
@@ -19,4 +23,5 @@ lint:
 clean:
 	@echo "Cleaning..."
 	rm -rf ./bin/veda-engine.exe
+	rm -f src/resource.syso
 

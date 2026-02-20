@@ -1,6 +1,6 @@
 build.log
 veda-engine.exe
-
+src/resource.syso
 .vscode/
 
 # Flake
