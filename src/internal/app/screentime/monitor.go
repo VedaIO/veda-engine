@@ -1,12 +1,12 @@
 package screentime
 
 import (
+	"time"
 	"veda-engine/src/internal/data/logger"
 	"veda-engine/src/internal/data/repository"
 	"veda-engine/src/internal/platform/app_filter"
 	"veda-engine/src/internal/platform/proc_sensing"
 	platformScreentime "veda-engine/src/internal/platform/screentime"
-	"time"
 )
 
 const (

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"veda-engine/src/internal/platform/blocklistlock"
 	"strings"
+	"veda-engine/src/internal/platform/blocklistlock"
 )
 
 const appBlocklistFile = "blocklist.json"

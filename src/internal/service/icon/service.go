@@ -1,10 +1,10 @@
 package icon
 
 import (
+	"sync"
 	"veda-engine/src/internal/data/logger"
 	"veda-engine/src/internal/platform/executable"
 	"veda-engine/src/internal/platform/get_app_icon"
-	"sync"
 )
 
 // AppDetails contains the commercial name and base64 icon of an application.

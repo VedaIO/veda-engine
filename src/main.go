@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"veda-engine/src/api"
 	"veda-engine/src/internal/app/screentime"
 	"veda-engine/src/internal/data"
@@ -14,12 +15,25 @@ import (
 	"veda-engine/src/internal/monitoring"
 	"veda-engine/src/internal/platform/nativehost"
 	"veda-engine/src/internal/web/native_messaging"
-	"strings"
+
+	"golang.org/x/sys/windows/svc"
 )
 
 func main() {
-	// CRITICAL: Log startup for debugging
-	// Use absolute path in CacheDir because CWD varies when launched by Chrome
+	// Check if running as a Windows Service (started by SCM)
+	isService, err := svc.IsWindowsService()
+	if err != nil {
+		log.Fatalf("Failed to determine if running as service: %v", err)
+	}
+
+	if isService {
+		runAsService()
+		return
+	}
+
+	// --- INTERACTIVE MODE (debug/dev or native messaging) ---
+
+	// Setup logging
 	cacheDir, _ := os.UserCacheDir()
 	logDir := filepath.Join(cacheDir, "Veda", "logs")
 	_ = os.MkdirAll(logDir, 0755)
@@ -31,10 +45,9 @@ func main() {
 		log.SetOutput(logFile)
 	}
 
-	log.Printf("=== VEDA ENGINE LAUNCHED === Args: %v", os.Args)
-	log.Printf("CWD: %v", func() string { wd, _ := os.Getwd(); return wd }())
+	log.Printf("=== VEDA ENGINE LAUNCHED (interactive) === Args: %v", os.Args)
 
-	// MODE 1: NATIVE MESSAGING HOST
+	// NATIVE MESSAGING HOST MODE
 	// Chrome launches us with the extension ID as an argument: chrome-extension://...
 	if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "chrome-extension://") {
 		log.Println("[MODE] Native Messaging Host detected")
@@ -43,26 +56,22 @@ func main() {
 		return
 	}
 
-	// MODE 2: STANDALONE SERVICE
-	log.Println("[MODE] Standalone Service detected")
+	// STANDALONE INTERACTIVE MODE (for debugging)
+	log.Println("[MODE] Interactive Standalone")
 
-	// Initialize database connection
 	db, err := data.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// Initialize logger with database
 	logger.NewLogger(db)
 	l := logger.GetLogger()
-
-	// Create API server with database connection
 	server := api.NewServer(db)
 
-	// Start background monitoring services.
+	// Start background monitoring
 	monitoring.StartDefault(l, server.Apps, screentime.StartScreenTimeMonitor)
 
-	// Ensure Native Messaging Host is registered
+	// Register Chrome extensions
 	if err := nativehost.RegisterExtension("hkanepohpflociaodcicmmfbdaohpceo"); err != nil {
 		log.Printf("Failed to register Store extension: %v", err)
 	}
@@ -70,15 +79,12 @@ func main() {
 		log.Printf("Failed to register Dev extension: %v", err)
 	}
 
-	// Start IPC Server
+	// Start IPC Server (blocking)
 	ipcServer := ipc.NewServer(server)
 	log.Println("Veda Engine is starting IPC Server...")
 	if err := ipcServer.Start(); err != nil {
 		log.Fatalf("Failed to start IPC server: %v", err)
 	}
 
-	// Keep the service running (actually listener.Accept() in Start() is blocking,
-	// but if Start() were async we'd need this select.
-	// Current Start() is blocking so we won't even reach here until it stops.)
 	select {}
 }

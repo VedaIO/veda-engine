@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 	"veda-engine/src/internal/app/screentime"
 	"veda-engine/src/internal/auth"
 	app_blocklist "veda-engine/src/internal/blocklist/app"
@@ -14,8 +16,6 @@ import (
 	"veda-engine/src/internal/platform/proc_sensing"
 	"veda-engine/src/internal/platform/uninstall"
 	"veda-engine/src/internal/web/native_messaging"
-	"strings"
-	"time"
 )
 
 const appName = "Veda"
@@ -57,7 +57,8 @@ func (s *Server) Uninstall(password string) error {
 			fmt.Fprintf(os.Stderr, "Failed to unblock all files: %v\n", err)
 		}
 
-		_ = autostart.RemoveAutostart()
+		// Stop and delete the Windows Service
+		_ = autostart.StopAndDeleteService()
 		_ = nativehost.Remove()
 
 		if err := uninstall.SelfDestruct(appName); err != nil {
@@ -71,11 +72,7 @@ func (s *Server) Uninstall(password string) error {
 // --- Settings & History ---
 
 func (s *Server) GetAutostartStatus() (bool, error) {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		return false, err
-	}
-	return cfg.AutostartEnabled, nil
+	return autostart.GetServiceStartType()
 }
 
 func (s *Server) EnableAutostart() error {

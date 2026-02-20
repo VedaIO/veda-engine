@@ -3,8 +3,8 @@ package native_messaging
 import (
 	"log"
 	"reflect"
-	blocklist "veda-engine/src/internal/blocklist/web"
 	"time"
+	blocklist "veda-engine/src/internal/blocklist/web"
 )
 
 const (

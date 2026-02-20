@@ -3,10 +3,10 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"veda-engine/src/internal/data/logger"
-	"veda-engine/src/internal/data/write"
 	"strconv"
 	"time"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/write"
 )
 
 // AppBlockedDetail represents an application name and its latest path.

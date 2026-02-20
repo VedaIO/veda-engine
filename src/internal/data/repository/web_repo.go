@@ -3,10 +3,10 @@ package repository
 import (
 	"database/sql"
 	"net/url"
-	"veda-engine/src/internal/data/logger"
-	"veda-engine/src/internal/data/write"
 	"strings"
 	"time"
+	"veda-engine/src/internal/data/logger"
+	"veda-engine/src/internal/data/write"
 )
 
 // ExtractDomain extracts domain from a URL string.

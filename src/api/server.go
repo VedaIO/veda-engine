@@ -2,11 +2,11 @@ package api
 
 import (
 	"database/sql"
+	"sync"
 	"veda-engine/src/internal/data/logger"
 	"veda-engine/src/internal/data/repository"
 	"veda-engine/src/internal/platform/nativehost"
 	"veda-engine/src/internal/service/icon"
-	"sync"
 )
 
 // Server holds the dependencies for the API server, such as the database connection and the logger.

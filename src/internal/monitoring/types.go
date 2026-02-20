@@ -1,8 +1,8 @@
 package monitoring
 
 import (
-	"veda-engine/src/internal/platform/proc_sensing"
 	"time"
+	"veda-engine/src/internal/platform/proc_sensing"
 )
 
 // ProcessSnapshot represents a point-in-time capture of all running processes.

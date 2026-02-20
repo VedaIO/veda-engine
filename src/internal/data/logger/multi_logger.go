@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"veda-engine/src/internal/data/write"
 	"sync"
 	"time"
+	"veda-engine/src/internal/data/write"
 )
 
 // multiLogger is an implementation of the Logger interface that writes logs to multiple destinations:

@@ -3,11 +3,11 @@
 package app_filter
 
 import (
+	"strings"
 	"veda-engine/src/internal/platform/executable"
 	"veda-engine/src/internal/platform/proc_sensing"
 	"veda-engine/src/internal/platform/process_integrity"
 	"veda-engine/src/internal/platform/window"
-	"strings"
 )
 
 // ShouldExclude returns true if the process is a Windows system component, conhost.exe, or Veda itself.
