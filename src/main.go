@@ -12,7 +12,6 @@ import (
 	"veda-engine/src/internal/data/logger"
 	"veda-engine/src/internal/ipc"
 	"veda-engine/src/internal/monitoring"
-	"veda-engine/src/internal/platform/autostart"
 	"veda-engine/src/internal/platform/nativehost"
 	"veda-engine/src/internal/web/native_messaging"
 	"strings"
@@ -61,9 +60,6 @@ func main() {
 	server := api.NewServer(db)
 
 	// Start background monitoring services.
-	if _, err := autostart.EnsureAutostart(); err != nil {
-		log.Printf("Failed to set up autostart: %v", err)
-	}
 	monitoring.StartDefault(l, server.Apps, screentime.StartScreenTimeMonitor)
 
 	// Ensure Native Messaging Host is registered
