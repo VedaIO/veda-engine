@@ -20,16 +20,16 @@
     },
     "StringFileInfo": {
         "Comments": "",
-        "CompanyName": "Nixuris",
+        "CompanyName": "VedaIO",
         "FileDescription": "Veda Engine - Background Monitoring Service",
-        "FileVersion": "1.0.0.0",
+        "FileVersion": "1.4.3",
         "InternalName": "veda-engine",
-        "LegalCopyright": "Copyright (c) 2025 Nixuris",
+        "LegalCopyright": "Copyright (c) 2026 VedaIO",
         "LegalTrademarks": "",
         "OriginalFilename": "veda-engine.exe",
         "PrivateBuild": "",
         "ProductName": "Veda Engine",
-        "ProductVersion": "1.0.0.0",
+        "ProductVersion": "1.4.3",
         "SpecialBuild": ""
     },
     "VarFileInfo": {
