@@ -14,7 +14,7 @@ func updateHeartbeat() {
 	if err != nil {
 		return
 	}
-	heartbeatPath := filepath.Join(cacheDir, "Veda", "extension_heartbeat")
+	heartbeatPath := filepath.Join(cacheDir, "VedaAnchor", "extension_heartbeat")
 	// Ensure directory exists
 	_ = os.MkdirAll(filepath.Dir(heartbeatPath), 0755)
 

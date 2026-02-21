@@ -248,7 +248,7 @@ func checkChromeExtension() bool {
 	if err != nil {
 		return false
 	}
-	heartbeatPath := filepath.Join(cacheDir, "Veda", "extension_heartbeat")
+	heartbeatPath := filepath.Join(cacheDir, "VedaAnchor", "extension_heartbeat")
 	content, err := os.ReadFile(heartbeatPath)
 	if err != nil {
 		return false

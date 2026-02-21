@@ -9,14 +9,14 @@ import (
 	"veda-anchor-engine/src/internal/platform/blocklistlock"
 )
 
-const appBlocklistFile = "blocklist.json"
+const appBlocklistFile = "veda-anchor_app_blocklist.json"
 
 // LoadAppBlocklist reads the blocklist file from the user's cache directory.
 // It returns a slice of strings, with all entries normalized to lowercase for case-insensitive matching.
 // If the file doesn't exist, it returns an empty list, which is not considered an error.
 func LoadAppBlocklist() ([]string, error) {
 	cacheDir, _ := os.UserCacheDir()
-	p := filepath.Join(cacheDir, "Veda", appBlocklistFile)
+	p := filepath.Join(cacheDir, "VedaAnchor", appBlocklistFile)
 
 	b, err := os.ReadFile(p)
 	if os.IsNotExist(err) {
@@ -48,8 +48,8 @@ func SaveAppBlocklist(list []string) error {
 	}
 
 	cacheDir, _ := os.UserCacheDir()
-	_ = os.MkdirAll(filepath.Join(cacheDir, "Veda"), 0755)
-	p := filepath.Join(cacheDir, "Veda", appBlocklistFile)
+	_ = os.MkdirAll(filepath.Join(cacheDir, "VedaAnchor"), 0755)
+	p := filepath.Join(cacheDir, "VedaAnchor", appBlocklistFile)
 
 	b, err := json.MarshalIndent(list, "", "  ")
 	if err != nil {

@@ -29,10 +29,10 @@ func (s *vedaAnchorService) Execute(args []string, r <-chan svc.ChangeRequest, c
 
 	// Setup logging
 	cacheDir, _ := os.UserCacheDir()
-	logDir := filepath.Join(cacheDir, "Veda-Anchor", "logs")
+	logDir := filepath.Join(cacheDir, "VedaAnchor", "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
-	logPath := filepath.Join(logDir, "Veda-Anchor_engine.log")
+	logPath := filepath.Join(logDir, "Veda-Anchor_Engine.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
 		defer func() { _ = logFile.Close() }()

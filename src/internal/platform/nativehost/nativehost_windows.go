@@ -37,7 +37,7 @@ func InstallNativeHost(exePath, extensionId string) error {
 		log.Printf("Failed to get user cache dir: %v", err)
 		return fmt.Errorf("failed to get user cache dir: %w", err)
 	}
-	appDataDir := filepath.Join(cacheDir, "Veda")
+	appDataDir := filepath.Join(cacheDir, "VedaAnchor")
 	configDir := filepath.Join(appDataDir, "config")
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		log.Printf("Failed to create config directory: %v", err)
@@ -131,7 +131,7 @@ func Remove() error {
 		return err
 	}
 
-	appDataDir := filepath.Join(cacheDir, "Veda")
+	appDataDir := filepath.Join(cacheDir, "VedaAnchor")
 	manifestPath := filepath.Join(appDataDir, "config", "native-host.json")
 
 	// Delete the heartbeat file too
