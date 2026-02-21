@@ -2,7 +2,7 @@
 
 ## Overview
 
-This package implements the **Native Messaging Host** protocol to communicate with the Veda Chrome Extension. It runs as a separate process launched by Chrome.
+This package implements the **Native Messaging Host** protocol to communicate with the Veda Anchor Chrome Extension. It runs as a separate process launched by Chrome.
 
 ## Protocol
 

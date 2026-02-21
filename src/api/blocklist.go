@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 	"time"
-	"veda-engine/src/internal/blocklist/app"
-	"veda-engine/src/internal/blocklist/web"
+	"veda-anchor-engine/src/internal/blocklist/app"
+	"veda-anchor-engine/src/internal/blocklist/web"
 )
 
 // --- App Blocklist ---

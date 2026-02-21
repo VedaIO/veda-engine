@@ -5,7 +5,7 @@ package autostart
 import (
 	"fmt"
 	"os"
-	"veda-engine/src/internal/config"
+	"veda-anchor-engine/src/internal/config"
 
 	"golang.org/x/sys/windows/svc"
 	"golang.org/x/sys/windows/svc/mgr"

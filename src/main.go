@@ -9,9 +9,9 @@ import (
 )
 
 func main() {
-	// veda-engine runs exclusively as a Windows Service.
-	// It is registered and started by the veda launcher (veda.exe).
-	err := svc.Run("VedaEngine", &vedaService{})
+	// veda-anchor-engine runs exclusively as a Windows Service.
+	// It is registered and started by the veda-anchor launcher (veda-anchor.exe).
+	err := svc.Run("VedaAnchorEngine", &vedaAnchorService{})
 	if err != nil {
 		log.Fatalf("Service failed: %v", err)
 	}

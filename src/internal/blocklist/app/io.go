@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"veda-engine/src/internal/platform/blocklistlock"
+	"veda-anchor-engine/src/internal/platform/blocklistlock"
 )
 
 const appBlocklistFile = "blocklist.json"

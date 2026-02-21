@@ -1,4 +1,4 @@
-module veda-engine
+module veda-anchor-engine
 
 go 1.25.5
 

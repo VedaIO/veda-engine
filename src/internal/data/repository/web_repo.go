@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
-	"veda-engine/src/internal/data/logger"
-	"veda-engine/src/internal/data/write"
+	"veda-anchor-engine/src/internal/data/logger"
+	"veda-anchor-engine/src/internal/data/write"
 )
 
 // ExtractDomain extracts domain from a URL string.

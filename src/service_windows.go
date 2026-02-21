@@ -6,23 +6,23 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"veda-engine/src/api"
-	"veda-engine/src/internal/app/screentime"
-	"veda-engine/src/internal/data"
-	"veda-engine/src/internal/data/logger"
-	"veda-engine/src/internal/ipc"
-	"veda-engine/src/internal/monitoring"
-	"veda-engine/src/internal/platform/nativehost"
+	"veda-anchor-engine/src/api"
+	"veda-anchor-engine/src/internal/app/screentime"
+	"veda-anchor-engine/src/internal/data"
+	"veda-anchor-engine/src/internal/data/logger"
+	"veda-anchor-engine/src/internal/ipc"
+	"veda-anchor-engine/src/internal/monitoring"
+	"veda-anchor-engine/src/internal/platform/nativehost"
 
 	"golang.org/x/sys/windows/svc"
 )
 
 const serviceName = "VedaEngine"
 
-// vedaService implements svc.Handler
-type vedaService struct{}
+// vedaAnchorService implements svc.Handler
+type vedaAnchorService struct{}
 
-func (s *vedaService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (bool, uint32) {
+func (s *vedaAnchorService) Execute(args []string, r <-chan svc.ChangeRequest, changes chan<- svc.Status) (bool, uint32) {
 	const cmdsAccepted = svc.AcceptStop | svc.AcceptShutdown
 
 	changes <- svc.Status{State: svc.StartPending}
@@ -67,7 +67,7 @@ func (s *vedaService) Execute(args []string, r <-chan svc.ChangeRequest, changes
 	// Start IPC Server in background
 	ipcServer := ipc.NewServer(server)
 	go func() {
-		log.Println("Veda Engine is starting IPC Server...")
+		log.Println("Veda Anchor Engine is starting IPC Server...")
 		if err := ipcServer.Start(); err != nil {
 			log.Printf("IPC server error: %v", err)
 		}
@@ -98,7 +98,7 @@ func (s *vedaService) Execute(args []string, r <-chan svc.ChangeRequest, changes
 
 // runAsService starts the engine as a Windows Service
 func runAsService() {
-	err := svc.Run(serviceName, &vedaService{})
+	err := svc.Run(serviceName, &vedaAnchorService{})
 	if err != nil {
 		log.Fatalf("Failed to run as service: %v", err)
 	}

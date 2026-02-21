@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/windows/registry"
-	"veda-engine/src/internal/data/logger"
+	"veda-anchor-engine/src/internal/data/logger"
 )
 
 const (
@@ -80,7 +80,7 @@ func InstallNativeHost(exePath, extensionId string) error {
 func CreateManifest(manifestPath, exePath, extensionId string) error {
 	manifest := map[string]interface{}{
 		"name":        HostName,
-		"description": "Veda native messaging host",
+		"description": "Veda Anchor native messaging host",
 		"path":        exePath,
 		"type":        "stdio",
 		"allowed_origins": []string{

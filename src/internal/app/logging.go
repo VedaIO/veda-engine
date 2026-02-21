@@ -5,10 +5,10 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"veda-engine/src/internal/data/logger"
-	"veda-engine/src/internal/data/repository"
-	"veda-engine/src/internal/platform/app_filter"
-	"veda-engine/src/internal/platform/proc_sensing"
+	"veda-anchor-engine/src/internal/data/logger"
+	"veda-anchor-engine/src/internal/data/repository"
+	"veda-anchor-engine/src/internal/platform/app_filter"
+	"veda-anchor-engine/src/internal/platform/proc_sensing"
 )
 
 const processCheckInterval = 2 * time.Second

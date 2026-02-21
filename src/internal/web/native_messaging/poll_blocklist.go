@@ -4,7 +4,7 @@ import (
 	"log"
 	"reflect"
 	"time"
-	blocklist "veda-engine/src/internal/blocklist/web"
+	blocklist "veda-anchor-engine/src/internal/blocklist/web"
 )
 
 const (

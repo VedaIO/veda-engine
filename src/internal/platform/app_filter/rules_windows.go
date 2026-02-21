@@ -4,17 +4,17 @@ package app_filter
 
 import (
 	"strings"
-	"veda-engine/src/internal/platform/executable"
-	"veda-engine/src/internal/platform/proc_sensing"
-	"veda-engine/src/internal/platform/process_integrity"
-	"veda-engine/src/internal/platform/window"
+	"veda-anchor-engine/src/internal/platform/executable"
+	"veda-anchor-engine/src/internal/platform/proc_sensing"
+	"veda-anchor-engine/src/internal/platform/process_integrity"
+	"veda-anchor-engine/src/internal/platform/window"
 )
 
-// ShouldExclude returns true if the process is a Windows system component, conhost.exe, or Veda itself.
+// ShouldExclude returns true if the process is a Windows system component, conhost.exe, or Veda Anchor itself.
 func ShouldExclude(exePath string, proc *proc_sensing.ProcessInfo) bool {
 	exePathLower := strings.ToLower(exePath)
 
-	// Never track Veda itself
+	// Never track Veda Anchor itself
 	if strings.Contains(exePathLower, "Veda.exe") {
 		return true
 	}

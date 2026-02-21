@@ -1,7 +1,7 @@
 package app_filter
 
 import (
-	"veda-engine/src/internal/platform/proc_sensing"
+	"veda-anchor-engine/src/internal/platform/proc_sensing"
 )
 
 // Filter provides methods to determine if a process should be tracked or logged.

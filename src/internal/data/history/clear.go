@@ -1,7 +1,7 @@
 package history
 
 import (
-	"veda-engine/src/internal/data/write"
+	"veda-anchor-engine/src/internal/data/write"
 )
 
 // This file contains functions for clearing history data from the database.

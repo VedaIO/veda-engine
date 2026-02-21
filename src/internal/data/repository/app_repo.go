@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"veda-engine/src/internal/data/logger"
-	"veda-engine/src/internal/data/write"
+	"veda-anchor-engine/src/internal/data/logger"
+	"veda-anchor-engine/src/internal/data/write"
 )
 
 // AppBlockedDetail represents an application name and its latest path.
