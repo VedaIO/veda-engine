@@ -17,7 +17,7 @@ import (
 	"golang.org/x/sys/windows/svc"
 )
 
-const serviceName = "VedaEngine"
+const serviceName = "VedaAnchorEngine"
 
 // vedaAnchorService implements svc.Handler
 type vedaAnchorService struct{}
@@ -29,10 +29,10 @@ func (s *vedaAnchorService) Execute(args []string, r <-chan svc.ChangeRequest, c
 
 	// Setup logging
 	cacheDir, _ := os.UserCacheDir()
-	logDir := filepath.Join(cacheDir, "Veda", "logs")
+	logDir := filepath.Join(cacheDir, "Veda-Anchor", "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
-	logPath := filepath.Join(logDir, "Veda_engine.log")
+	logPath := filepath.Join(logDir, "Veda-Anchor_engine.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
 		defer func() { _ = logFile.Close() }()
