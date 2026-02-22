@@ -6,17 +6,17 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"veda-anchor-engine/src/internal/config"
 
 	_ "modernc.org/sqlite"
 )
 
 // OpenAndConfigureDB handles the common logic for opening and configuring the database connection.
 func OpenAndConfigureDB() (*sql.DB, error) {
-	cacheDir, err := os.UserCacheDir()
+	dbPath, err := config.GetDatabasePath()
 	if err != nil {
-		return nil, fmt.Errorf("could not get user cache dir: %w", err)
+		return nil, fmt.Errorf("could not get database path: %w", err)
 	}
-	dbPath := filepath.Join(cacheDir, "VedaAnchor", "veda-anchor.db")
 	log.Printf("Database path: %s", dbPath)
 
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0755); err != nil {

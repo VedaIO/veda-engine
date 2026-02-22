@@ -2,6 +2,7 @@ package ipc
 
 import (
 	"encoding/json"
+	"veda-anchor-engine/src/internal/config"
 )
 
 // Request is a message received from the client.
@@ -20,5 +21,5 @@ type Response struct {
 
 // GetIPCAddress returns the Windows Named Pipe address.
 func GetIPCAddress() string {
-	return `\\.\pipe\veda-anchor`
+	return config.PipeName
 }

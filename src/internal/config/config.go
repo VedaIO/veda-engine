@@ -20,13 +20,13 @@ func NewConfig() *Config {
 	return &Config{}
 }
 
-// GetConfigPath returns the path to the configuration file, which is stored in the user's cache directory.
+// GetConfigPath returns the path to the configuration file.
 func GetConfigPath() (string, error) {
-	cacheDir, err := os.UserCacheDir()
+	dir, err := GetConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(cacheDir, "VedaAnchor", "config", "settings.json"), nil
+	return filepath.Join(dir, "settings.json"), nil
 }
 
 // LoadConfig reads the configuration file from the user's cache directory.

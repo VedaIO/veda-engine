@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"golang.org/x/sys/windows/registry"
+	"veda-anchor-engine/src/internal/config"
 	"veda-anchor-engine/src/internal/data/logger"
 )
 
@@ -30,22 +31,17 @@ func InstallNativeHost(exePath, extensionId string) error {
 		`SOFTWARE\Mozilla\NativeMessagingHosts\` + HostName,
 	}
 
-	// The manifest file must be stored in a location that the user has access to.
-	// The user's cache directory is a good choice.
-	cacheDir, err := os.UserCacheDir()
+	manifestPath, err := config.GetNativeHostManifestPath()
 	if err != nil {
-		log.Printf("Failed to get user cache dir: %v", err)
-		return fmt.Errorf("failed to get user cache dir: %w", err)
+		log.Printf("Failed to get manifest path: %v", err)
+		return fmt.Errorf("failed to get manifest path: %w", err)
 	}
-	appDataDir := filepath.Join(cacheDir, "VedaAnchor")
-	configDir := filepath.Join(appDataDir, "config")
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		log.Printf("Failed to create config directory: %v", err)
-		return fmt.Errorf("failed to create config directory: %w", err)
+	if err := os.MkdirAll(filepath.Dir(manifestPath), 0755); err != nil {
+		log.Printf("Failed to create manifest directory: %v", err)
+		return fmt.Errorf("failed to create manifest directory: %w", err)
 	}
 
 	// Create the manifest file that describes the native messaging host.
-	manifestPath := filepath.Join(configDir, "native-host.json")
 	if err := CreateManifest(manifestPath, exePath, extensionId); err != nil {
 		log.Printf("Failed to create manifest file: %v", err)
 		return fmt.Errorf("failed to create manifest file: %w", err)
@@ -80,7 +76,7 @@ func InstallNativeHost(exePath, extensionId string) error {
 func CreateManifest(manifestPath, exePath, extensionId string) error {
 	manifest := map[string]interface{}{
 		"name":        HostName,
-		"description": "Veda Anchor native messaging host",
+		"description": "Anchor native messaging host",
 		"path":        exePath,
 		"type":        "stdio",
 		"allowed_origins": []string{
@@ -126,18 +122,19 @@ func Remove() error {
 	}
 
 	// Delete the manifest file.
-	cacheDir, err := os.UserCacheDir()
+	manifestPath, err := config.GetNativeHostManifestPath()
 	if err != nil {
 		return err
 	}
 
-	appDataDir := filepath.Join(cacheDir, "VedaAnchor")
-	manifestPath := filepath.Join(appDataDir, "config", "native-host.json")
-
 	// Delete the heartbeat file too
-	heartbeatPath := filepath.Join(appDataDir, "extension_heartbeat")
-	if err := os.Remove(heartbeatPath); err != nil && !os.IsNotExist(err) {
-		logger.GetLogger().Printf("Failed to remove heartbeat: %v", err)
+	heartbeatPath, err := config.GetHeartbeatPath()
+	if err != nil {
+		logger.GetLogger().Printf("Failed to get heartbeat path: %v", err)
+	} else {
+		if err := os.Remove(heartbeatPath); err != nil && !os.IsNotExist(err) {
+			logger.GetLogger().Printf("Failed to remove heartbeat: %v", err)
+		}
 	}
 
 	if err := os.Remove(manifestPath); err != nil && !os.IsNotExist(err) {

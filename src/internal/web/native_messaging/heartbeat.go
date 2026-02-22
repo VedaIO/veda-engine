@@ -5,16 +5,16 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"veda-anchor-engine/src/internal/config"
 )
 
 // updateHeartbeat updates a local file with the current timestamp.
 // This is used by the GUI to verify that the native messaging host (and thus the extension) is active.
 func updateHeartbeat() {
-	cacheDir, err := os.UserCacheDir()
+	heartbeatPath, err := config.GetHeartbeatPath()
 	if err != nil {
 		return
 	}
-	heartbeatPath := filepath.Join(cacheDir, "VedaAnchor", "extension_heartbeat")
 	// Ensure directory exists
 	_ = os.MkdirAll(filepath.Dir(heartbeatPath), 0755)
 

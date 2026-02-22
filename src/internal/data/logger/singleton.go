@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"veda-anchor-engine/src/internal/config"
 )
 
 var defaultLogger Logger
@@ -15,11 +16,13 @@ var once sync.Once
 // It uses a sync.Once to ensure that the logger is only initialized once, making it safe for concurrent use.
 func NewLogger(db *sql.DB) {
 	once.Do(func() {
-		cacheDir, err := os.UserCacheDir()
+		logPath, err := config.GetLogPath()
 		if err != nil {
-			log.Fatalf("Failed to get user cache dir: %v", err)
+			log.Fatalf("Failed to get log path: %v", err)
 		}
-		logPath := filepath.Join(cacheDir, "VedaAnchor", "veda-anchor_engine.log")
+		if err := os.MkdirAll(filepath.Dir(logPath), 0755); err != nil {
+			log.Fatalf("Failed to create log directory: %v", err)
+		}
 		file, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatalf("Failed to open log file: %v", err)

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"time"
+	"veda-anchor-engine/src/internal/config"
 	"veda-anchor-engine/src/internal/data"
 	"veda-anchor-engine/src/internal/data/repository"
 	"veda-anchor-engine/src/internal/data/write"
@@ -18,11 +19,12 @@ import (
 // and begins listening for messages from the browser extension via standard input.
 func Run() {
 	// Setup logging to file (CRITICAL for debugging native messaging)
-	cacheDir, _ := os.UserCacheDir()
-	logDir := filepath.Join(cacheDir, "VedaAnchor", "logs")
-	_ = os.MkdirAll(logDir, 0755)
+	logPath, err := config.GetNativeHostLogPath()
+	if err != nil {
+		return
+	}
+	_ = os.MkdirAll(filepath.Dir(logPath), 0755)
 
-	logPath := filepath.Join(logDir, "native_host.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
 		defer func() { _ = logFile.Close() }()
