@@ -16,7 +16,7 @@ import (
 const (
 	// HostName is the name of the native messaging host.
 	// It must match the name specified in the browser extension's manifest.
-	HostName = "com.infraflakes.Veda"
+	HostName = "com.vedaio.veda-anchor"
 )
 
 // InstallNativeHost sets up the native messaging host for Chrome, Edge, and Firefox by creating registry keys
@@ -84,7 +84,7 @@ func CreateManifest(manifestPath, exePath, extensionId string) error {
 			"chrome-extension://gpaafgcbiejjpfdgmjglehboafdicdjb/", // Dev Extension ID
 		},
 		"allowed_extensions": []string{
-			"Veda@infraflakes.com",
+			"veda-anchor@vedaio.com",
 		},
 	}
 

@@ -6,12 +6,13 @@ import (
 )
 
 // GetAppRoot returns the root directory for application data and logs.
+// We use ProgramData for shared access between the Windows Service (System) and UI (User).
 func GetAppRoot() (string, error) {
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		return "", err
+	progData := os.Getenv("ProgramData")
+	if progData == "" {
+		progData = `C:\ProgramData`
 	}
-	return filepath.Join(cacheDir, AppName), nil
+	return filepath.Join(progData, AppName), nil
 }
 
 // GetLogDir returns the directory where log files are stored.
