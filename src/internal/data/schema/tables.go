@@ -53,6 +53,7 @@ const AppSchema = `
 	CREATE TABLE IF NOT EXISTS screen_time (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		executable_path TEXT,
+		pid INTEGER,
 		timestamp INTEGER NOT NULL,
 		duration_seconds INTEGER DEFAULT 1
 	);
@@ -60,4 +61,5 @@ const AppSchema = `
 	-- Indexes for screen_time queries.
 	CREATE INDEX IF NOT EXISTS idx_screen_time_timestamp ON screen_time (timestamp);
 	CREATE INDEX IF NOT EXISTS idx_screen_time_exe ON screen_time (executable_path);
+	CREATE INDEX IF NOT EXISTS idx_screen_time_pid ON screen_time (pid);
 `

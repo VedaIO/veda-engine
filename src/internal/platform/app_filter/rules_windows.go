@@ -7,7 +7,6 @@ import (
 	"veda-anchor-engine/src/internal/platform/executable"
 	"veda-anchor-engine/src/internal/platform/proc_sensing"
 	"veda-anchor-engine/src/internal/platform/process_integrity"
-	"veda-anchor-engine/src/internal/platform/window"
 )
 
 // ShouldExclude returns true if the process is a Windows system component, conhost.exe, or Veda Anchor itself.
@@ -15,7 +14,7 @@ func ShouldExclude(exePath string, proc *proc_sensing.ProcessInfo) bool {
 	exePathLower := strings.ToLower(exePath)
 
 	// Never track Veda Anchor itself
-	if strings.Contains(exePathLower, "Veda.exe") {
+	if strings.Contains(exePathLower, "veda.exe") {
 		return true
 	}
 
@@ -45,27 +44,4 @@ func ShouldExclude(exePath string, proc *proc_sensing.ProcessInfo) bool {
 	}
 
 	return false
-}
-
-// ShouldTrack returns true if the process is a user application that should be monitored.
-func ShouldTrack(exePath string, proc *proc_sensing.ProcessInfo) bool {
-	if proc == nil {
-		return false
-	}
-
-	nameLower := strings.ToLower(proc.Name)
-
-	// Log cmd.exe and powershell.exe ONLY if launched by explorer.exe
-	if nameLower == "cmd.exe" || nameLower == "powershell.exe" || nameLower == "pwsh.exe" {
-		// Note: We'll keep the simplified logic for now or we could lookup the parent
-		// if we wanted to be more precise, but let's keep it close to original.
-		return false // Default to false for shells unless explorer is parent (to be refined)
-	}
-
-	// Must have visible window (user interaction indicator)
-	if !window.HasVisibleWindow(uint32(proc.PID)) {
-		return false
-	}
-
-	return true
 }

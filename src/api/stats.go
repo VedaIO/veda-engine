@@ -141,3 +141,13 @@ func extractFileName(path string) string {
 	}
 	return path
 }
+
+// --- Agent Communication ---
+
+func (s *Server) UpdateScreenTime(pid uint32, seconds int64) error {
+	return s.Apps.UpdateScreenTimeByPID(pid, seconds)
+}
+
+func (s *Server) ReportActiveApp(pid uint32, exePath string) error {
+	return s.Apps.ReportActiveApp(pid, exePath)
+}

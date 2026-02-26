@@ -232,6 +232,24 @@ func (s *Server) dispatch(req Request) Response {
 	case "CheckChromeExtension":
 		result = checkChromeExtension()
 
+	// --- Agent Communication ---
+
+	case "UpdateScreenTime":
+		var params struct {
+			PID     uint32 `json:"pid"`
+			Seconds int64  `json:"seconds"`
+		}
+		json.Unmarshal(req.Params, &params)
+		err = s.apiServer.UpdateScreenTime(params.PID, params.Seconds)
+
+	case "ReportActiveApp":
+		var params struct {
+			PID     uint32 `json:"pid"`
+			exePath string `json:"exePath"`
+		}
+		json.Unmarshal(req.Params, &params)
+		err = s.apiServer.ReportActiveApp(params.PID, params.exePath)
+
 	default:
 		return Response{ID: req.ID, Error: "Unknown method: " + req.Method}
 	}

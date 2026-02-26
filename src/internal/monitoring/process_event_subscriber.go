@@ -105,12 +105,8 @@ func (s *ProcessEventSubscriber) logNewProcesses(procs []proc_sensing.ProcessInf
 			continue
 		}
 
-		// Skip processes that don't meet tracking criteria.
-		if !app_filter.ShouldTrack(exePath, &p) {
-			continue
-		}
-
 		// Log the new process event to the database.
+		// Note: ShouldTrack is now handled by Agent - Engine logs all non-excluded processes
 		parentName := fmt.Sprintf("PID: %d", p.ParentPID)
 		s.repo.LogAppEvent(name, p.PID, parentName, exePath, time.Now().Unix(), key)
 

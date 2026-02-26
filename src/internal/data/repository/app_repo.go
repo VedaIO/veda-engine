@@ -262,3 +262,33 @@ func (r *AppRepository) EnsureActiveScreenTimeRecord(exePath string) {
 		)
 	`, exePath, now, exePath, now-300)
 }
+
+// UpdateScreenTimeByPID updates screen time for a process by PID.
+func (r *AppRepository) UpdateScreenTimeByPID(pid uint32, seconds int64) error {
+	now := time.Now().Unix()
+	_, err := r.db.Exec(`
+		UPDATE screen_time 
+		SET duration_seconds = duration_seconds + ?, timestamp = ?
+		WHERE id = (
+			SELECT id FROM screen_time 
+			WHERE pid = ? AND timestamp > ?
+			ORDER BY timestamp DESC LIMIT 1
+		)
+	`, seconds, now, pid, now-300)
+	return err
+}
+
+// ReportActiveApp reports an active app from Agent.
+func (r *AppRepository) ReportActiveApp(pid uint32, exePath string) error {
+	now := time.Now().Unix()
+	_, err := r.db.Exec(`
+		INSERT INTO screen_time (executable_path, pid, timestamp, duration_seconds)
+		SELECT ?, ?, ?, 1
+		WHERE NOT EXISTS (
+			SELECT 1 FROM screen_time 
+			WHERE pid = ? AND timestamp > ?
+			ORDER BY timestamp DESC LIMIT 1
+		)
+	`, exePath, pid, now, pid, now-300)
+	return err
+}

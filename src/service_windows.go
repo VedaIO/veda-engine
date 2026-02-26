@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"veda-anchor-engine/src/api"
-	"veda-anchor-engine/src/internal/app/screentime"
 	"veda-anchor-engine/src/internal/config"
 	"veda-anchor-engine/src/internal/data"
 	"veda-anchor-engine/src/internal/data/logger"
@@ -53,8 +52,8 @@ func (s *vedaAnchorService) Execute(args []string, r <-chan svc.ChangeRequest, c
 	l := logger.GetLogger()
 	server := api.NewServer(db)
 
-	// Start monitoring
-	monitoring.StartDefault(l, server.Apps, screentime.StartScreenTimeMonitor)
+	// Start monitoring (screentime now handled by Agent)
+	monitoring.StartDefault(l, server.Apps, nil)
 
 	// Register Chrome extensions
 	if err := nativehost.RegisterExtension("hkanepohpflociaodcicmmfbdaohpceo"); err != nil {

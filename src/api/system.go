@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"veda-anchor-engine/src/internal/app/screentime"
 	"veda-anchor-engine/src/internal/auth"
 	app_blocklist "veda-anchor-engine/src/internal/blocklist/app"
 	"veda-anchor-engine/src/internal/config"
@@ -95,7 +94,6 @@ func (s *Server) ClearAppHistory(password string) error {
 
 	history.ClearAppHistory()
 	monitoring.ResetGlobalManager()
-	screentime.ResetScreenTime()
 	return nil
 }
 

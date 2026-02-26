@@ -120,12 +120,8 @@ func logNewProcesses(state *loggerState, appLogger logger.Logger, procs []proc_s
 			continue
 		}
 
-		// Rule 3: Must be a trackable user application
-		if !app_filter.ShouldTrack(exePath, &p) {
-			continue
-		}
-
-		// Success: Log it
+		// Log it
+		// Note: ShouldTrack is now handled by Agent - Engine logs all non-excluded processes
 		parentName := fmt.Sprintf("PID: %d", p.ParentPID)
 
 		// Store a standard Unix timestamp for display and the high-precision UniqueKey for process identity.
