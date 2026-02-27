@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"veda-anchor-engine/src/api"
+	"veda-anchor-engine/src/internal/agent"
 	"veda-anchor-engine/src/internal/config"
 	"veda-anchor-engine/src/internal/data"
 	"veda-anchor-engine/src/internal/data/logger"
@@ -71,6 +72,9 @@ func (s *vedaAnchorService) Execute(args []string, r <-chan svc.ChangeRequest, c
 			log.Printf("IPC server error: %v", err)
 		}
 	}()
+
+	// Launch Agent in user session
+	go agent.StartAgentWithRetry()
 
 	// Service is now running
 	changes <- svc.Status{State: svc.Running, Accepts: cmdsAccepted}
